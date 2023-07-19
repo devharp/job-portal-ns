@@ -23,8 +23,7 @@ export class UserRegistrationController {
 
   @Post()
   create(@Body(globalValidationPipe) user: UserDTO): any {
-    // return this.userRegistrationService.create(user);
-    return new this.userModel(user).save();
+    return this.userRegistrationService.create(user);
   }
 
   @Get()

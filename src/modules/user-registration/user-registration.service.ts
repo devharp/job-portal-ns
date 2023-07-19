@@ -1,10 +1,6 @@
-import { BadRequestException, Body, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import {
-  classToPlain,
-  plainToClass,
-  classToClassFromExist,
-} from 'class-transformer';
+import { classToPlain, plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { Model } from 'mongoose';
 import {
@@ -64,25 +60,24 @@ export class UserRegistrationService {
     return this.userModel.findByIdAndDelete(id).exec();
   }
 
-  private addSeeker(seeker: UserSeekerDTO) {
-    const user = classToPlain(plainToClass(UserSchemaClass, seeker));
-
-    const userSeeker = classToPlain(
-      plainToClass(UserSeekerSchemaClass, seeker),
+  private async addSeeker(seeker: UserSeekerDTO) {
+    const userData = await this.userModel.create(
+      classToPlain(plainToClass(UserSchemaClass, seeker)),
     );
-    console.log({ user, userSeeker });
+    await this.userSeekerModel.create({
+      ...classToPlain(plainToClass(UserSeekerSchemaClass, seeker)),
+      user: userData._id,
+    });
   }
 
   private async addProvider(provider: UserProviderDTO) {
-    const user = classToPlain(plainToClass(UserSchemaClass, provider));
-
-    const userProvider = classToPlain(
-      plainToClass(UserProviderSchemaClass, provider),
+    const userData = await this.userModel.create(
+      classToPlain(plainToClass(UserSchemaClass, provider)),
     );
-
-    const db = new this.userModel(user as User);
-    await db.save();
-    console.log({ user, userProvider });
+    await this.userProviderModel.create({
+      ...classToPlain(plainToClass(UserProviderSchemaClass, provider)),
+      user: userData._id,
+    });
   }
 
   private async validateUserDTO(user: UserDTO, DTOClass: any): Promise<void> {
