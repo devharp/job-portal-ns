@@ -34,12 +34,12 @@ export class UserRegistrationService {
         const userSeeker = plainToClass(UserSeekerDTO, user);
         await this.validateUserDTO(userSeeker, UserSeekerDTO);
         this.addSeeker(userSeeker);
-        return 'seeker';
+        return { message: 'seeker' };
       case USER_ROLE.PROVIDER:
         const userProvider = plainToClass(UserProviderDTO, user);
         await this.validateUserDTO(userProvider, UserProviderDTO);
         this.addProvider(userProvider);
-        return 'provider';
+        return { message: 'provider' };
     }
     return 'ok';
   }
