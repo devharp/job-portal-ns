@@ -5,10 +5,15 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
+  Get,
 } from '@nestjs/common';
 import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { Request as Req } from 'express';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
 
+@UseGuards(RolesGuard)
 @Controller('user-login')
 export class UserLoginController {
   /**
@@ -27,7 +32,14 @@ export class UserLoginController {
   @Post('')
   async login(@Request() req: Pick<Req, keyof Req> & { user: string }) {
     return req?.user
-      ? { access_token: req.user }
+      ? req.user
       : new HttpException('Login Unsuccessful', HttpStatus.UNAUTHORIZED);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Roles('provider')
+  @Get('')
+  hello(): string {
+    return 'Hiii';
   }
 }

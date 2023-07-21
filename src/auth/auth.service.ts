@@ -58,4 +58,8 @@ export class AuthService {
     const payload = this.cleanUser(user); // You can reuse the cleanUser method from the previous step
     return this.jwtService.sign(payload);
   }
+
+  public async getUserById(id: string): Promise<User> {
+    return await this.userModel.findById(id);
+  }
 }

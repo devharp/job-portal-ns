@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { AuthService } from './auth.service';
+import { User } from 'src/schema/users/user.schema';
 
 /**
  * Passport Local Strategy for authentication using username and password.
@@ -32,10 +33,14 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
    * @returns {Promise<string>} A Promise that resolves to a JWT token upon successful authentication.
    * @throws {UnauthorizedException} Throws an UnauthorizedException if the user credentials are invalid.
    */
-  async validate(username: string, password: string): Promise<string> {
+  async validate(username: string, password: string): Promise<any> {
     const user = await this.authService.validateUser(username, password);
+    // return user
+    //   ? this.authService.generateJwtToken(user)
+    //   : Promise.reject(new UnauthorizedException());
+
     return user
-      ? this.authService.generateJwtToken(user)
+      ? { ...user, access_token: this.authService.generateJwtToken(user) }
       : Promise.reject(new UnauthorizedException());
   }
 }

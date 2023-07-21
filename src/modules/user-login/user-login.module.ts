@@ -11,6 +11,7 @@ import {
   UserProvider,
   UserProviderSchema,
 } from 'src/schema/users/provider.user.schema';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -28,6 +29,10 @@ import {
         schema: UserProviderSchema,
       },
     ]),
+    JwtModule.register({
+      secret: 'your_secret_key_here',
+      signOptions: { expiresIn: '1d' }, // Token expiration time (optional)
+    }),
   ],
   controllers: [UserLoginController],
   providers: [UserLoginService],
