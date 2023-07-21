@@ -1,8 +1,15 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
 import { Model } from 'mongoose';
+import { mailDto } from 'src/constants/dto/mail.dto.class';
 import {
   UserDTO,
   UserProviderDTO,
@@ -18,6 +25,8 @@ import {
   UserSeekerSchemaClass,
 } from 'src/schema/users/seeker.user.schema';
 import { User, UserSchemaClass } from 'src/schema/users/user.schema';
+import { EncryptionService } from 'src/utilities/encryption.service';
+import { MailService } from 'src/utilities/mail.service';
 
 @Injectable()
 export class UserRegistrationService {
@@ -26,6 +35,9 @@ export class UserRegistrationService {
     @InjectModel(UserSeeker.name) private userSeekerModel: Model<UserSeeker>,
     @InjectModel(UserProvider.name)
     private userProviderModel: Model<UserProvider>,
+    private encryptionService: EncryptionService,
+    private mailService: MailService,
+    private configService: ConfigService,
   ) {}
 
   async create(user: UserDTO): Promise<any> {
@@ -89,5 +101,29 @@ export class UserRegistrationService {
         .join(', ');
       throw new BadRequestException(errorMessage);
     }
+  }
+
+  async isUser(email: string): Promise<boolean> {
+    try {
+      const user: User | null = await this.userModel.findOne({ email });
+      return user !== null;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async resetPassword(emailBody: mailDto): Promise<Object> {
+    const valid = await this.isUser(emailBody.email);
+    if (!valid) {
+      throw new HttpException('Email not valid', HttpStatus.FORBIDDEN);
+    }
+    const resetToken: string =
+      await this.encryptionService.generateResetToken();
+    const resetLink = `${this.configService.get(
+      'RESET_PASS_PAGE',
+    )}?token=${resetToken}`;
+    emailBody.subject = 'Reset Your Password';
+    emailBody.text = `Click the following link to reset your password: ${resetLink}`;
+    return await this.mailService.sendEmail(emailBody);
   }
 }
