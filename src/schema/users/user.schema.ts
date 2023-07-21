@@ -13,13 +13,13 @@ export class User extends Document {
   @Prop()
   lastName: string;
 
-  @Prop()
+  @Prop({ unique: true })
   email: string;
 
   @Prop()
   password: string;
 
-  @Prop()
+  @Prop({ unique: true })
   mobileNo: string;
 
   @Prop()

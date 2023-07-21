@@ -18,6 +18,7 @@ import {
   UserSeekerSchemaClass,
 } from 'src/schema/users/seeker.user.schema';
 import { User, UserSchemaClass } from 'src/schema/users/user.schema';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserRegistrationService {
@@ -62,7 +63,12 @@ export class UserRegistrationService {
 
   private async addSeeker(seeker: UserSeekerDTO) {
     const userData = await this.userModel.create(
-      classToPlain(plainToClass(UserSchemaClass, seeker)),
+      classToPlain(
+        plainToClass(UserSchemaClass, {
+          ...seeker,
+          password: await bcrypt.hash(seeker.password, 10),
+        }),
+      ),
     );
     await this.userSeekerModel.create({
       ...classToPlain(plainToClass(UserSeekerSchemaClass, seeker)),
@@ -72,7 +78,12 @@ export class UserRegistrationService {
 
   private async addProvider(provider: UserProviderDTO) {
     const userData = await this.userModel.create(
-      classToPlain(plainToClass(UserSchemaClass, provider)),
+      classToPlain(
+        plainToClass(UserSchemaClass, {
+          ...provider,
+          password: await bcrypt.hash(provider.password, 10),
+        }),
+      ),
     );
     await this.userProviderModel.create({
       ...classToPlain(plainToClass(UserProviderSchemaClass, provider)),
