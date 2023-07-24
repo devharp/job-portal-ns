@@ -3,6 +3,7 @@ import {
   Injectable,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
@@ -25,6 +26,7 @@ import {
 } from 'src/schema/users/seeker.user.schema';
 import { User, UserSchemaClass } from 'src/schema/users/user.schema';
 import { MailService } from 'src/utilities/mail.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserRegistrationService {
@@ -38,19 +40,25 @@ export class UserRegistrationService {
   ) {}
 
   async create(user: UserDTO): Promise<any> {
-    switch (user.role) {
-      case USER_ROLE.SEEKER:
-        const userSeeker = plainToClass(UserSeekerDTO, user);
-        await this.validateUserDTO(userSeeker, UserSeekerDTO);
-        this.addSeeker(userSeeker);
-        return { message: 'seeker' };
-      case USER_ROLE.PROVIDER:
-        const userProvider = plainToClass(UserProviderDTO, user);
-        await this.validateUserDTO(userProvider, UserProviderDTO);
-        this.addProvider(userProvider);
-        return { message: 'provider' };
+    try {
+      switch (user.role) {
+        case USER_ROLE.SEEKER:
+          const userSeeker = plainToClass(UserSeekerDTO, user);
+          await this.validateUserDTO(userSeeker, UserSeekerDTO);
+          this.addSeeker(userSeeker);
+          return { message: 'seeker' };
+        case USER_ROLE.PROVIDER:
+          const userProvider = plainToClass(UserProviderDTO, user);
+          await this.validateUserDTO(userProvider, UserProviderDTO);
+          this.addProvider(userProvider);
+          return { message: 'provider' };
+      }
+      return 'ok';
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'An error has occurred while adding a user',
+      );
     }
-    return 'ok';
   }
 
   async findAll(): Promise<User[]> {
@@ -71,7 +79,12 @@ export class UserRegistrationService {
 
   private async addSeeker(seeker: UserSeekerDTO) {
     const userData = await this.userModel.create(
-      classToPlain(plainToClass(UserSchemaClass, seeker)),
+      classToPlain(
+        plainToClass(UserSchemaClass, {
+          ...seeker,
+          password: await bcrypt.hash(seeker.password, 10),
+        }),
+      ),
     );
     await this.userSeekerModel.create({
       ...classToPlain(plainToClass(UserSeekerSchemaClass, seeker)),
@@ -80,13 +93,24 @@ export class UserRegistrationService {
   }
 
   private async addProvider(provider: UserProviderDTO) {
-    const userData = await this.userModel.create(
-      classToPlain(plainToClass(UserSchemaClass, provider)),
-    );
-    await this.userProviderModel.create({
-      ...classToPlain(plainToClass(UserProviderSchemaClass, provider)),
-      user: userData._id,
-    });
+    try {
+      const userData = await this.userModel.create(
+        classToPlain(
+          plainToClass(UserSchemaClass, {
+            ...provider,
+            password: await bcrypt.hash(provider.password, 10),
+          }),
+        ),
+      );
+      await this.userProviderModel.create({
+        ...classToPlain(plainToClass(UserProviderSchemaClass, provider)),
+        user: userData._id,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'An error has occurred while adding a user',
+      );
+    }
   }
 
   private async validateUserDTO(user: UserDTO, DTOClass: any): Promise<void> {
