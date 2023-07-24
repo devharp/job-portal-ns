@@ -25,8 +25,7 @@ export class JobPostController {
   ) {}
 
   @Post()
-  create(@Body(globalValidationPipe) createJobPostDto: CreateJobPostDto) {
-    console.log('in controller----------->', createJobPostDto);
+  create(@Body() createJobPostDto: CreateJobPostDto) {
     return this.jobPostService.create(createJobPostDto);
   }
 
