@@ -1,8 +1,11 @@
 import {
   BadRequestException,
   Injectable,
+  HttpException,
+  HttpStatus,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
@@ -22,6 +25,7 @@ import {
   UserSeekerSchemaClass,
 } from 'src/schema/users/seeker.user.schema';
 import { User, UserSchemaClass } from 'src/schema/users/user.schema';
+import { MailService } from 'src/utilities/mail.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -31,6 +35,8 @@ export class UserRegistrationService {
     @InjectModel(UserSeeker.name) private userSeekerModel: Model<UserSeeker>,
     @InjectModel(UserProvider.name)
     private userProviderModel: Model<UserProvider>,
+    private mailService: MailService,
+    private configService: ConfigService,
   ) {}
 
   async create(user: UserDTO): Promise<any> {
@@ -116,5 +122,13 @@ export class UserRegistrationService {
         .join(', ');
       throw new BadRequestException(errorMessage);
     }
+  }
+
+  public async resetPassword(
+    email: string,
+  ): Promise<{ success: boolean; message: string }> {
+    if (await this.userModel.findOne({ email }))
+      return await this.mailService.sendEmail(email);
+    throw new HttpException('Unknown Email', HttpStatus.UNAUTHORIZED);
   }
 }
