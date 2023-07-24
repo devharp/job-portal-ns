@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserRegistrationController } from './user-registration.controller';
 import { UserRegistrationService } from './user-registration.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -11,6 +13,8 @@ import {
   UserProvider,
   UserProviderSchema,
 } from 'src/schema/users/provider.user.schema';
+import { MailService } from 'src/utilities/mail.service';
+import { EncryptionService } from 'src/utilities/encryption.service';
 
 @Module({
   imports: [
@@ -28,8 +32,31 @@ import {
         schema: UserProviderSchema,
       },
     ]),
+
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const mailerConfig = {
+          transport: {
+            host: configService.get<string>('MAIL_HOST'),
+            port: configService.get<number>('MAIL_PORT'),
+            secure: false,
+            auth: {
+              user: configService.get<string>('MAIL_USER').replace(/['"]/g, ''),
+              pass: configService.get<string>('MAIL_PASS').replace(/['"]/g, ''),
+            },
+          },
+          defaults: {
+            from: configService.get<string>('MAIL_USER').replace(/['"]/g, ''),
+          },
+        };
+        return mailerConfig;
+      },
+      inject: [ConfigService],
+    }),
   ],
   controllers: [UserRegistrationController],
-  providers: [UserRegistrationService],
+  providers: [UserRegistrationService, MailService, EncryptionService],
+  exports: [EncryptionService, MailService],
 })
 export class UserRegistrationModule {}
