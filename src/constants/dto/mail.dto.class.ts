@@ -1,12 +1,6 @@
 import { IsNotEmpty, IsEmail } from 'class-validator';
-export class mailDto {
+export class resetPasswordDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
-
-  @IsNotEmpty()
-  subject: string;
-
-  @IsNotEmpty()
-  text: string;
 }

@@ -13,7 +13,7 @@ import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
 import { UserDTO } from 'src/constants/dto/user.dto.class';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { mailDto } from 'src/constants/dto/mail.dto.class';
+import { resetPasswordDto } from 'src/constants/dto/mail.dto.class';
 
 @Controller('user-registration')
 export class UserRegistrationController {
@@ -28,8 +28,8 @@ export class UserRegistrationController {
   }
 
   @Post('request-reset')
-  async requestReset(@Body() emailBody: mailDto) {
-    return await this.userRegistrationService.resetPassword(emailBody);
+  async requestReset(@Body(globalValidationPipe) payload: resetPasswordDto) {
+    return await this.userRegistrationService.resetPassword(payload.email);
   }
 
   @Get()
