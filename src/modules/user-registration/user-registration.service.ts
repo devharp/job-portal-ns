@@ -27,6 +27,7 @@ import {
 import { User, UserSchemaClass } from 'src/schema/users/user.schema';
 import { MailService } from 'src/utilities/mail.service';
 import * as bcrypt from 'bcrypt';
+import { EncryptionService } from 'src/utilities/encryption.service';
 
 @Injectable()
 export class UserRegistrationService {
@@ -37,6 +38,7 @@ export class UserRegistrationService {
     private userProviderModel: Model<UserProvider>,
     private mailService: MailService,
     private configService: ConfigService,
+    private encryptionService: EncryptionService,
   ) {}
 
   async create(user: UserDTO): Promise<any> {
@@ -127,8 +129,56 @@ export class UserRegistrationService {
   public async resetPassword(
     email: string,
   ): Promise<{ success: boolean; message: string }> {
-    if (await this.userModel.findOne({ email }))
-      return await this.mailService.sendEmail(email);
-    throw new HttpException('Unknown Email', HttpStatus.UNAUTHORIZED);
+    if (await this.userModel.findOne({ email })) {
+      const resetToken: string = this.encryptionService.generateResetToken();
+      const expiration = new Date();
+      expiration.setMinutes(expiration.getMinutes() + 10);
+      await this.userModel.collection.updateOne(
+        { email },
+        {
+          $set: {
+            token: {
+              cryptoToken: resetToken,
+              expiration,
+            },
+          },
+        },
+      );
+      return await this.mailService.sendEmail(email, resetToken);
+    } else {
+      throw new HttpException('Unknown Email', HttpStatus.UNAUTHORIZED);
+    }
+  }
+
+  public async newPasswordUsingToken(
+    newPassword: string,
+    token: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const updatedUser = await this.userModel.findOneAndUpdate(
+        {
+          'token.cryptoToken': token,
+          'token.expiration': { $gt: new Date() },
+        },
+        {
+          $set: {
+            password: await bcrypt.hash(newPassword, 10),
+            token: null,
+          },
+        },
+        { new: true },
+      );
+      if (!updatedUser) {
+        return Promise.reject(
+          new HttpException('Invalid or expired Link', HttpStatus.UNAUTHORIZED),
+        );
+      }
+      return { success: true, message: 'Password updated successfully.' };
+    } catch (error) {
+      throw new HttpException(
+        'An error occurred while updating password',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
