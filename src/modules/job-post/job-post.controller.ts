@@ -4,10 +4,10 @@ import {
   Post,
   Put,
   Body,
-  Patch,
   Param,
-  Query,
   Delete,
+  Res,
+  NotFoundException,
 } from '@nestjs/common';
 import { JobPostService } from './job-post.service';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
@@ -48,7 +48,17 @@ export class JobPostController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.jobPostService.remove(+id);
+  async remove(@Param('id') id: string, @Res() res) {
+    const delPost = await this.jobPostService.delete(id);
+    if (!delPost) {
+      throw new NotFoundException({
+        statusCode: 404,
+        error: 'id not found',
+        result: delPost,
+      });
+    }
+    return res
+      .status(200)
+      .json({ statusCode: 200, messagee: 'post deleted', id: delPost._id });
   }
 }

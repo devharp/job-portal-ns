@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
+
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -21,12 +22,13 @@ export class JobPostService {
     return result;
   }
   async update(id: string, updateData: object): Promise<JobPost> {
-    return this.JobPostModel.findByIdAndUpdate(id, JobPost, {
+    return this.JobPostModel.findByIdAndUpdate(id, updateData, {
       new: true,
     }).exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} jobPost`;
+  async delete(id: string): Promise<JobPost> {
+    const result = await this.JobPostModel.findByIdAndDelete(id).exec();
+    return result;
   }
 }
