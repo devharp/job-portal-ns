@@ -26,10 +26,10 @@ export class JobPost extends Document {
   @Prop()
   postedDate: Date;
 
-  @Prop()
+  @Prop({ unique: true })
   contactEmail: string;
 
-  @Prop()
+  @Prop({ unique: true })
   contactPhone: string;
 
   @Prop()
