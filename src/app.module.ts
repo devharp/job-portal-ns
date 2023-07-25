@@ -29,7 +29,7 @@ import { JobPostModule } from './modules/job-post/job-post.module';
       secret: 'your_secret_key_here',
       signOptions: { expiresIn: '1d' }, // Token expiration time
     }),
-    MongooseModule.forRoot('mongodb://localhost/job-portal'),
+    MongooseModule.forRoot('mongodb://127.0.0.1:27017/job-portal'),
     MongooseModule.forFeature([
       {
         name: User.name,
@@ -44,7 +44,6 @@ import { JobPostModule } from './modules/job-post/job-post.module';
         schema: UserProviderSchema,
       },
     ]),
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017/job-portal'),
     UserRegistrationModule,
     UserLoginModule,
     JobPostModule,

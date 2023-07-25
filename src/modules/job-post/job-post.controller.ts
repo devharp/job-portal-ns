@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { JobPostService } from './job-post.service';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
-import { UpdateJobPostDto } from '../../constants/dto/update-job-post.dto';
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';

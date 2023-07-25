@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
-import { UpdateJobPostDto } from '../../constants/dto/update-job-post.dto';
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -21,7 +20,7 @@ export class JobPostService {
     const result = await this.JobPostModel.findById(id).exec();
     return result;
   }
-  async update(id: string, JobPost: object): Promise<JobPost> {
+  async update(id: string, updateData: object): Promise<JobPost> {
     return this.JobPostModel.findByIdAndUpdate(id, JobPost, {
       new: true,
     }).exec();
