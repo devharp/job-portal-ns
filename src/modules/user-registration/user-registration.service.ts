@@ -1,9 +1,9 @@
 import {
   BadRequestException,
   Injectable,
-  HttpException,
-  HttpStatus,
   InternalServerErrorException,
+  HttpException,
+  HttpStatus
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
@@ -25,8 +25,8 @@ import {
   UserSeekerSchemaClass,
 } from 'src/schema/users/seeker.user.schema';
 import { User, UserSchemaClass } from 'src/schema/users/user.schema';
-import { MailService } from 'src/utilities/mail.service';
 import * as bcrypt from 'bcrypt';
+import { MailService } from 'src/utilities/mail.service';
 
 @Injectable()
 export class UserRegistrationService {
