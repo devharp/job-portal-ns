@@ -24,8 +24,9 @@ export class JobPostController {
   ) {}
 
   @Post()
-  create(@Body(globalValidationPipe) createJobPostDto: CreateJobPostDto): any {
-    return this.jobPostService.create(createJobPostDto);
+  async create(@Body(globalValidationPipe) createJobPostDto: CreateJobPostDto) {
+    const result = await this.jobPostService.create(createJobPostDto);
+    return result;
   }
 
   @Get()
@@ -60,5 +61,11 @@ export class JobPostController {
     return res
       .status(200)
       .json({ statusCode: 200, messagee: 'post deleted', id: delPost._id });
+  }
+
+  // get job-post by category
+  @Get(':categoryId')
+  async findJobPostsByCategory(@Param('categoryId') categoryId: string) {
+    return this.jobPostService.findJobPostsByCategory(categoryId);
   }
 }

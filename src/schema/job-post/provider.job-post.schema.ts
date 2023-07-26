@@ -41,8 +41,10 @@ export class JobPost extends Document {
   // @Prop({ type: Types.ObjectId, ref: 'provider' })
   // provider: Types.ObjectId;
 
+  // @Prop({ type: Types.ObjectId, ref: 'JobCategory', required: true })
+  // jobcategory: Types.ObjectId; // Reference to the JobCategory collection
   @Prop()
-  jobCategory: string;
+  jobcategory: string;
 
   @Prop()
   status: string;

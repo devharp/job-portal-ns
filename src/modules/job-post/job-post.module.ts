@@ -6,12 +6,20 @@ import {
   JobPost,
   JobPostSchema,
 } from 'src/schema/job-post/provider.job-post.schema';
+import {
+  JobCategorySchema,
+  jobCategory,
+} from 'src/schema/job-post/job.category.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
       {
         name: JobPost.name,
         schema: JobPostSchema,
+      },
+      {
+        name: jobCategory.name,
+        schema: JobCategorySchema,
       },
     ]),
   ],

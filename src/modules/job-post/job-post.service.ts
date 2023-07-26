@@ -31,4 +31,10 @@ export class JobPostService {
     const result = await this.JobPostModel.findByIdAndDelete(id).exec();
     return result;
   }
+  // find post by category
+  async findJobPostsByCategory(categoryId: string): Promise<JobPost[]> {
+    return this.JobPostModel.find({ category: categoryId })
+      .populate('category')
+      .exec();
+  }
 }
