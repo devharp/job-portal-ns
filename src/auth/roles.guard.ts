@@ -19,7 +19,6 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    console.log('allowed roles @roles.guard :-', allowedRoles);
     if (!allowedRoles) {
       // No roles specified for this route, allow access by default
       return true;
@@ -27,14 +26,9 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const authorizationHeader = request.headers.authorization;
-    console.log('authorizationHeader @roles.guard :-', authorizationHeader);
-
     if (!authorizationHeader)
       throw new UnauthorizedException('Authorization header not found');
-
     const { role } = this.jwtService.verify(authorizationHeader.split(' ')[1]);
-    console.log('role @roles.guard :-', role);
-
     return allowedRoles.includes(role);
   }
 }
