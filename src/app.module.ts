@@ -22,12 +22,12 @@ import { JwtStrategy } from './auth/jwt.strategy';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.local.env' }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: 'your_secret_key_here',
       signOptions: { expiresIn: '1d' }, // Token expiration time
     }),
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.local.env' }),
     MongooseModule.forRoot('mongodb://localhost/job-portal'),
     MongooseModule.forFeature([
       {
