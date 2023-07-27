@@ -29,7 +29,7 @@ import { JobPostModule } from './modules/job-post/job-post.module';
       signOptions: { expiresIn: '1d' }, // Token expiration time
     }),
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.local.env' }),
-    MongooseModule.forRoot('mongodb://localhost/job-portal'),
+    MongooseModule.forRoot('mongodb://127.0.0.1:27017/job-portal'),
     MongooseModule.forFeature([
       {
         name: User.name,

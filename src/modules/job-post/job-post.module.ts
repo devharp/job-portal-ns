@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JobPostService } from './job-post.service';
 import { JobPostController } from './job-post.controller';
 import { MongooseModule } from '@nestjs/mongoose';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import {
   JobPost,
   JobPostSchema,
@@ -22,6 +23,10 @@ import {
         schema: JobCategorySchema,
       },
     ]),
+    JwtModule.register({
+      secret: 'your_secret_key_here',
+      signOptions: { expiresIn: '1d' }, // Token expiration time (optional)
+    }),
   ],
   controllers: [JobPostController],
   providers: [JobPostService],
