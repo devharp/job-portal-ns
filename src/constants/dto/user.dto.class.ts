@@ -37,6 +37,9 @@ class BaseUserDTO {
   @IsString()
   @IsIn([USER_ROLE.SEEKER, USER_ROLE.PROVIDER])
   role: string;
+
+  @IsOptional()
+  token: object;
 }
 
 export class UserDTO extends BaseUserDTO {

@@ -23,13 +23,13 @@ import { JobPostModule } from './modules/job-post/job-post.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.local.env' }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: 'your_secret_key_here',
       signOptions: { expiresIn: '1d' }, // Token expiration time
     }),
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.local.env' }),
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017/job-portal'),
+    MongooseModule.forRoot('mongodb://localhost/job-portal'),
     MongooseModule.forFeature([
       {
         name: User.name,

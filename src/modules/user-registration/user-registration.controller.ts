@@ -32,6 +32,17 @@ export class UserRegistrationController {
     return await this.userRegistrationService.resetPassword(payload.email);
   }
 
+  @Post('/update-password/:token')
+  async updatePasswordField(
+    @Body('password') newPassword: string,
+    @Param('token') token: string,
+  ) {
+    return await this.userRegistrationService.newPasswordUsingToken(
+      newPassword,
+      token,
+    );
+  }
+
   @Get()
   async findAll(): Promise<User[]> {
     return this.userRegistrationService.findAll();
