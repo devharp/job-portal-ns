@@ -20,8 +20,8 @@ export class CreateJobPostDto {
   location: string;
 
   @IsNotEmpty()
-  @IsString()
-  salary: string;
+  @IsNumber()
+  salary: number[];
 
   @IsNotEmpty()
   @IsString()
@@ -29,19 +29,7 @@ export class CreateJobPostDto {
 
   @IsNotEmpty()
   @IsString()
-  jobCategory: string;
-
-  @IsNotEmpty()
-  @IsString()
-  postedDate: string;
-
-  @IsNotEmpty()
-  @IsString()
   contactEmail: string;
-
-  @IsNotEmpty()
-  @IsString()
-  contactPhone: string;
 
   @IsNotEmpty()
   @IsNumber()
@@ -50,6 +38,14 @@ export class CreateJobPostDto {
   @IsNotEmpty()
   @IsString()
   experienceLevel: string;
+
+  @IsNotEmpty()
+  @IsString()
+  jobCategory: string; // category
+
+  @IsNotEmpty()
+  @IsString()
+  Title: string; // title
 
   @IsNotEmpty()
   @IsString()

@@ -2,6 +2,7 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, HydratedDocument, Types } from 'mongoose';
 import { JobCategory as Category } from './job.category.schema';
 import { JobTitle } from './job.title.schema';
+import { User } from '../users/user.schema';
 
 export type JobPostDocument = HydratedDocument<JobPost>;
 
@@ -16,8 +17,8 @@ export class JobPost extends Document {
   @Prop()
   jobDescription: string;
 
-  @Prop()
-  salary: string;
+  @Prop([Number])
+  salary: [number, number];
 
   @Prop()
   JobType: string;
@@ -25,11 +26,8 @@ export class JobPost extends Document {
   @Prop()
   postedDate: Date;
 
-  @Prop({ unique: true })
+  @Prop()
   contactEmail: string;
-
-  @Prop({ unique: true })
-  contactPhone: string;
 
   @Prop()
   vacancies: number;
@@ -37,10 +35,12 @@ export class JobPost extends Document {
   @Prop()
   experienceLevel: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'jobCategory', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'jobCategory' })
   category: Category;
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  provider: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'jobTitle', required: true })
+  @Prop({ type: Types.ObjectId, ref: 'jobTitle' })
   jobTitle: JobTitle;
 
   @Prop()

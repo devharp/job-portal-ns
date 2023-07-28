@@ -13,13 +13,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    console.log('in jwt----------->', payload);
     if (!payload || !payload?.id)
       throw new UnauthorizedException('Invalid token');
 
     // Validate token and handle token expiration error
     try {
       const { role } = await this.authService.getUserById(payload.id);
-      return { role };
+      return payload;
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }

@@ -1,20 +1,41 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
+import { User, UserSchemaClass } from 'src/schema/users/user.schema';
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JobCategory } from 'src/schema/job-post/job.category.schema';
 import { JobTitle } from 'src/schema/job-post/job.title.schema';
 import { category, titles } from '../../utilities/static.array';
+import { UserRegistrationService } from '../user-registration/user-registration.service';
 @Injectable()
 export class JobPostService {
   constructor(
     @InjectModel('JobPost') private JobPostModel: Model<JobPost>,
+    @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel('JobCategory') private JobCategoryModel: Model<JobCategory>,
     @InjectModel('JobTitle') private JobTitleModel: Model<JobTitle>,
+    private userService: UserRegistrationService,
   ) {}
-  async create(createJobPostDto: CreateJobPostDto) {
-    const postData = await this.JobPostModel.create(createJobPostDto);
+  async create(createJobPostDto: CreateJobPostDto, provider: string) {
+    // const { _id } = await this.userModel.findById(provider);
+    console.log('service------------------->', createJobPostDto);
+    const { jobCategory, Title } = createJobPostDto;
+    const category = await this.JobCategoryModel.findOne({
+      name: jobCategory,
+    }).exec();
+    if (!category) return [];
+    const title = await this.JobTitleModel.findOne({
+      title: Title,
+    }).exec();
+    if (!title) return [];
+    const { _id } = await this.userService.findById(provider);
+    const postData = await this.JobPostModel.create({
+      ...createJobPostDto,
+      provider: _id,
+      category: category._id,
+      jobTitle: title._id,
+    });
     return postData;
   }
 

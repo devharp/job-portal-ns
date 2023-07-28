@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -29,7 +29,13 @@ import { JobPostModule } from './modules/job-post/job-post.module';
       secret: 'your_secret_key_here',
       signOptions: { expiresIn: '1d' }, // Token expiration time
     }),
-    MongooseModule.forRoot('mongodb://localhost/job-portal'),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('CON_URI'),
+      }),
+      inject: [ConfigService],
+    }),
     MongooseModule.forFeature([
       {
         name: User.name,
