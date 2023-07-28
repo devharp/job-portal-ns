@@ -9,10 +9,6 @@ import {
 export class CreateJobPostDto {
   @IsNotEmpty()
   @IsString()
-  JobTitle: string;
-
-  @IsNotEmpty()
-  @IsString()
   OrganizationName: string;
 
   @IsNotEmpty()
