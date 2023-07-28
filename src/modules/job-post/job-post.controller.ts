@@ -7,9 +7,11 @@ import {
   Param,
   Delete,
   Res,
+  Request,
   NotFoundException,
   UseGuards,
 } from '@nestjs/common';
+import { Request as Req } from 'express';
 import { JobPostService } from './job-post.service';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
@@ -29,11 +31,16 @@ export class JobPostController {
     private readonly jobPostService: JobPostService,
     @InjectModel(JobPost.name) private JobPostModel: Model<JobPost>,
   ) {}
-  // @UseGuards(JwtAuthGuard)
 
-  @Post()
-  async create(@Body(globalValidationPipe) createJobPostDto: CreateJobPostDto) {
-    const result = await this.jobPostService.create(createJobPostDto);
+  @Post('')
+  async create(
+    @Body(globalValidationPipe) CreateJobPostDto: any,
+    @Request() req: any,
+  ) {
+    const provider: string = req.user.id;
+    // CreateJobPostDto.provider = provider;
+    // console.log('provider----------->', CreateJobPostDto);
+    const result = await this.jobPostService.create(CreateJobPostDto, provider);
     return result;
   }
 

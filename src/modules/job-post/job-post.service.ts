@@ -1,14 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
-
+import { User, UserSchemaClass } from 'src/schema/users/user.schema';
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 @Injectable()
 export class JobPostService {
-  constructor(@InjectModel('JobPost') private JobPostModel: Model<JobPost>) {}
-  async create(createJobPostDto: CreateJobPostDto) {
-    const postData = await this.JobPostModel.create(createJobPostDto);
+  constructor(
+    @InjectModel('JobPost') private JobPostModel: Model<JobPost>,
+    @InjectModel(User.name) private userModel: Model<User>,
+  ) {}
+  async create(createJobPostDto: CreateJobPostDto, provider: string) {
+    const { _id } = await this.userModel.findById(provider);
+    const postData = await this.JobPostModel.create({
+      ...createJobPostDto,
+      provider: _id,
+    });
     return postData;
   }
 

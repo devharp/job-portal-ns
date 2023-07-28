@@ -11,6 +11,7 @@ import {
   JobCategorySchema,
   jobCategory,
 } from 'src/schema/job-post/job.category.schema';
+import { User, UserSchema } from 'src/schema/users/user.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -21,6 +22,10 @@ import {
       {
         name: jobCategory.name,
         schema: JobCategorySchema,
+      },
+      {
+        name: User.name,
+        schema: UserSchema,
       },
     ]),
     JwtModule.register({
