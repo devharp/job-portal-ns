@@ -9,10 +9,6 @@ import {
 export class CreateJobPostDto {
   @IsNotEmpty()
   @IsString()
-  JobTitle: string;
-
-  @IsNotEmpty()
-  @IsString()
   OrganizationName: string;
 
   @IsNotEmpty()
@@ -45,7 +41,11 @@ export class CreateJobPostDto {
 
   @IsNotEmpty()
   @IsString()
-  jobCategory: string;
+  jobCategory: string; // category
+
+  @IsNotEmpty()
+  @IsString()
+  Title: string; // title
 
   @IsNotEmpty()
   @IsString()

@@ -11,15 +11,12 @@ import { UserRegistrationService } from './user-registration.service';
 import { User } from 'src/schema/users/user.schema';
 import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
 import { UserDTO } from 'src/constants/dto/user.dto.class';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { resetPasswordDto } from 'src/constants/dto/mail.dto.class';
 
 @Controller('user-registration')
 export class UserRegistrationController {
   constructor(
     private readonly userRegistrationService: UserRegistrationService,
-    @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
   @Post()
