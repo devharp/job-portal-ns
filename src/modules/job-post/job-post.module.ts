@@ -9,8 +9,9 @@ import {
 } from 'src/schema/job-post/provider.job-post.schema';
 import {
   JobCategorySchema,
-  jobCategory,
+  JobCategory,
 } from 'src/schema/job-post/job.category.schema';
+import { JobTitle, JobTitleSchema } from 'src/schema/job-post/job.title.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -19,8 +20,12 @@ import {
         schema: JobPostSchema,
       },
       {
-        name: jobCategory.name,
+        name: JobCategory.name,
         schema: JobCategorySchema,
+      },
+      {
+        name: JobTitle.name,
+        schema: JobTitleSchema,
       },
     ]),
     JwtModule.register({

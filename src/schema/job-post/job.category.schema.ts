@@ -1,14 +1,11 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Document, HydratedDocument, Types } from 'mongoose';
+import { Document, HydratedDocument } from 'mongoose';
 
-export type JobPostDocument = HydratedDocument<jobCategory>;
+export type JobCategoryDocument = HydratedDocument<JobCategory>;
 
-@Schema({ collection: 'JobCategory', timestamps: true })
-export class jobCategory extends Document {
-  @Prop()
+@Schema({ collection: 'jobCategory', timestamps: true })
+export class JobCategory extends Document {
+  @Prop({ required: true })
   name: string;
-
-  @Prop()
-  description: string;
 }
-export const JobCategorySchema = SchemaFactory.createForClass(jobCategory);
+export const JobCategorySchema = SchemaFactory.createForClass(JobCategory);

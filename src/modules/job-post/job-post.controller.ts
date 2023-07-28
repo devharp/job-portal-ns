@@ -29,8 +29,6 @@ export class JobPostController {
     private readonly jobPostService: JobPostService,
     @InjectModel(JobPost.name) private JobPostModel: Model<JobPost>,
   ) {}
-  // @UseGuards(JwtAuthGuard)
-
   @Post()
   async create(@Body(globalValidationPipe) createJobPostDto: CreateJobPostDto) {
     const result = await this.jobPostService.create(createJobPostDto);
@@ -71,9 +69,42 @@ export class JobPostController {
       .json({ statusCode: 200, messagee: 'post deleted', id: delPost._id });
   }
 
-  // get job-post by category
+  /**
+   *
+   * @routes : filter routes
+   *
+   */
+
   @Get(':categoryId')
   async findJobPostsByCategory(@Param('categoryId') categoryId: string) {
     return this.jobPostService.findJobPostsByCategory(categoryId);
+  }
+
+  @Get('suggestions-titles/:categoryName')
+  async getSuggestionsByCategory(@Param('categoryName') categoryName: string) {
+    return await this.jobPostService.suggestJobTitlesByCategory(categoryName);
+  }
+
+  @Get('search/:sortBy')
+  async getJobPosts(@Param('sortBy') sortBy: string): Promise<JobPost[]> {
+    return sortBy === 'category'
+      ? await this.jobPostService.fetchJobPostsByCategory(sortBy)
+      : await this.jobPostService.fetchJobPostsByJobTitle(sortBy);
+  }
+
+  /**
+   * @routes : routes to insert categories and titles : -
+   * @NOTE:This routes is for development/testing purposes only
+   * and should not be used in production
+   */
+
+  @Post('add-category')
+  async insertCategory() {
+    return await this.jobPostService.insertCategory();
+  }
+
+  @Post('add-title')
+  async insertTitle() {
+    return await this.jobPostService.insertTitles();
   }
 }
