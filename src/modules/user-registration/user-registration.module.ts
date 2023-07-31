@@ -57,6 +57,6 @@ import { EncryptionService } from 'src/utilities/encryption.service';
   ],
   controllers: [UserRegistrationController],
   providers: [UserRegistrationService, MailService, EncryptionService],
-  exports: [EncryptionService, MailService],
+  exports: [EncryptionService, MailService, UserRegistrationService],
 })
 export class UserRegistrationModule {}

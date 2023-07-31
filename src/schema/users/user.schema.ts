@@ -27,6 +27,18 @@ export class User extends Document {
 
   @Prop({ enum: USER_ROLE, default: USER_ROLE.SEEKER })
   role: string;
+
+  @Prop({
+    type: {
+      cryptoToken: { type: String, default: '' },
+      expiration: { type: Date, default: null },
+    },
+    default: null,
+  })
+  token?: {
+    cryptoToken: string;
+    expiration: Date;
+  };
 }
 
 @Exclude()
