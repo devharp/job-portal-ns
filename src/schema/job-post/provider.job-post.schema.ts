@@ -37,6 +37,7 @@ export class JobPost extends Document {
 
   @Prop({ type: Types.ObjectId, ref: 'jobCategory' })
   category: Category;
+  
   @Prop({ type: Types.ObjectId, ref: 'User' })
   provider: Types.ObjectId;
 
