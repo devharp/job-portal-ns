@@ -1,6 +1,10 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
-import { Injectable, NotFoundException } from '@nestjs/common';
 import { User, UserSchemaClass } from 'src/schema/users/user.schema';
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
 import { Model } from 'mongoose';
@@ -9,6 +13,7 @@ import { JobTitle } from 'src/schema/job-post/job.title.schema';
 import { category, titles } from '../../utilities/static.array';
 import { UserRegistrationService } from '../user-registration/user-registration.service';
 import { EncryptionService } from 'src/utilities/encryption.service';
+import { InjectModel } from '@nestjs/mongoose';
 @Injectable()
 export class JobPostService {
   constructor(
@@ -119,7 +124,7 @@ export class JobPostService {
       return 'insert done';
     } catch (error) {
       console.log('error during inserting category', error);
- 
+
       throw error;
     }
   }

@@ -46,6 +46,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         },
       }),
       inject: [ConfigService],
+    }),
     UserRegistrationModule,
   ],
   controllers: [JobPostController],
