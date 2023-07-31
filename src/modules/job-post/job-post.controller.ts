@@ -10,11 +10,15 @@ import {
   Request,
   NotFoundException,
   UseGuards,
+ 
+  Query,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
-import { Request as Req } from 'express';
 import { JobPostService } from './job-post.service';
-import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
+import { Request as Req } from 'express';
+import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { validate } from 'class-validator';
@@ -24,15 +28,13 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
 @UseGuards(JwtAuthGuard)
 @UseGuards(RolesGuard)
-@Roles('provider')
-@Controller('job-post')
 export class JobPostController {
   constructor(
     private readonly jobPostService: JobPostService,
     @InjectModel(JobPost.name) private JobPostModel: Model<JobPost>,
   ) {}
-
-  @Post('')
+  @Roles('provider')
+  @Post()
   async create(
     @Body(globalValidationPipe) CreateJobPostDto: any,
     @Request() req: any,
@@ -51,7 +53,7 @@ export class JobPostController {
   async getJobPostById(@Param('id') id: number): Promise<JobPost> {
     return await this.jobPostService.findById(id);
   }
-
+  @Roles('provider')
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -60,7 +62,7 @@ export class JobPostController {
   ): Promise<JobPost> {
     return await this.jobPostService.update(id, updateData);
   }
-
+  @Roles('provider')
   @Delete(':id')
   async remove(@Param('id') id: string, @Res() res) {
     const delPost = await this.jobPostService.delete(id);
@@ -77,29 +79,23 @@ export class JobPostController {
   }
 
   /**
-   *
    * @routes : filter routes
    *
    */
-
-  @Get(':categoryId')
-  async findJobPostsByCategory(@Param('categoryId') categoryId: string) {
-    return this.jobPostService.findJobPostsByCategory(categoryId);
+  @Get('suggestions/dropdown')
+  async getSuggestionsByCategory(@Query('category') category: string) {
+    return await this.jobPostService.suggest(category);
   }
-
-  @Get('suggestions-titles/:categoryName')
-  async getSuggestionsByCategory(@Param('categoryName') categoryName: string) {
-    return await this.jobPostService.suggestJobTitlesByCategory(categoryName);
+  @Get('history/posts')
+  async getProvidersPost(@Request() req: any, @Query('status') status: string) {
+    if (status && status !== 'active' && status !== 'inactive') {
+      throw new HttpException(
+        'Invalid status parameter',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return await this.jobPostService.jobPostsHistory(req.user.id, status);
   }
-
-  // search job post - seeker
-  @Get('search/:sortBy')
-  async getJobPosts(@Param('sortBy') sortBy: string): Promise<JobPost[]> {
-    return sortBy === 'category'
-      ? await this.jobPostService.fetchJobPostsByCategory(sortBy)
-      : await this.jobPostService.fetchJobPostsByJobTitle(sortBy);
-  }
-
   /**
    * @routes : routes to insert categories and titles : -
    * @NOTE:This routes is for development/testing purposes only

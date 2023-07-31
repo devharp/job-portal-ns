@@ -14,6 +14,7 @@ import {
 } from 'src/schema/job-post/job.category.schema';
 import { JobTitle, JobTitleSchema } from 'src/schema/job-post/job.title.schema';
 import { UserRegistrationModule } from '../user-registration/user-registration.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -34,10 +35,17 @@ import { UserRegistrationModule } from '../user-registration/user-registration.m
         schema: UserSchema,
       },
     ]),
-    JwtModule.register({
-      secret: 'your_secret_key_here',
-      signOptions: { expiresIn: '1d' }, // Token expiration time (optional)
-    }),
+    JwtModule.registerAsync({
+      // secret: 'your_secret_key_here',
+      // signOptions: { expiresIn: '1d' }, // Token expiration time (optional)
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get('JWT_KEY'),
+        signOptions: {
+          expiresIn: configService.get<string>('JWT_EXPIRE') + 'd',
+        },
+      }),
+      inject: [ConfigService],
     UserRegistrationModule,
   ],
   controllers: [JobPostController],
