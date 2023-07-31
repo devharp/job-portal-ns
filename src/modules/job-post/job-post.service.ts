@@ -1,44 +1,39 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User, UserSchemaClass } from 'src/schema/users/user.schema';
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
-import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JobCategory } from 'src/schema/job-post/job.category.schema';
 import { JobTitle } from 'src/schema/job-post/job.title.schema';
 import { category, titles } from '../../utilities/static.array';
 import { UserRegistrationService } from '../user-registration/user-registration.service';
+import { EncryptionService } from 'src/utilities/encryption.service';
 @Injectable()
 export class JobPostService {
   constructor(
     @InjectModel('JobPost') private JobPostModel: Model<JobPost>,
-    @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel('JobCategory') private JobCategoryModel: Model<JobCategory>,
     @InjectModel('JobTitle') private JobTitleModel: Model<JobTitle>,
     private userService: UserRegistrationService,
+    private encryptionService: EncryptionService,
   ) {}
   async create(createJobPostDto: CreateJobPostDto, provider: string) {
-    // const { _id } = await this.userModel.findById(provider);
-    console.log('service------------------->', createJobPostDto);
     const { jobCategory, Title } = createJobPostDto;
-    const category = await this.JobCategoryModel.findOne({
-      name: jobCategory,
-    }).exec();
-    if (!category) return [];
-    const title = await this.JobTitleModel.findOne({
-      title: Title,
-    }).exec();
-    if (!title) return [];
+    const category = await this.findIdOfCategoryOrTitle(
+      'category',
+      jobCategory,
+    );
+    const title = await this.findIdOfCategoryOrTitle('title', Title);
     const { _id } = await this.userService.findById(provider);
     const postData = await this.JobPostModel.create({
       ...createJobPostDto,
       provider: _id,
-      category: category._id,
-      jobTitle: title._id,
+      category: category[0],
+      jobTitle: title[0],
     });
     return postData;
   }
-
   async findAll(): Promise<JobPost[]> {
     const result = await this.JobPostModel.find().exec();
     return result;
@@ -59,47 +54,54 @@ export class JobPostService {
     const result = await this.JobPostModel.findByIdAndDelete(id).exec();
     return result;
   }
-  // find post by category
-  async findJobPostsByCategory(categoryId: string): Promise<JobPost[]> {
-    return this.JobPostModel.find({ category: categoryId })
-      .populate('category')
-      .exec();
-  }
-
   /**
-   *
-   * @service : filter services
+   * @service : filter services : -
    *
    */
 
-  async suggestJobTitlesByCategory(categoryName: string): Promise<string[]> {
-    const category = await this.JobCategoryModel.findOne({
-      name: categoryName,
-    }).exec();
-    if (!category) return [];
+  async findIdOfCategoryOrTitle(of: string, name: string): Promise<any> {
+    const results =
+      of === 'category'
+        ? await this.JobCategoryModel.find({
+            name: { $regex: this.encryptionService.regexAppplication(name) },
+          }).exec()
+        : await this.JobTitleModel.find({
+            title: { $regex: this.encryptionService.regexAppplication(name) },
+          }).exec();
+    return results ? results.map((result) => result._id) : [];
+  }
+
+  async suggest(categoryName: string): Promise<string[]> {
+    const categoryId = await this.findIdOfCategoryOrTitle(
+      'category',
+      categoryName,
+    );
+    if (!categoryId) return [];
     return (
       await this.JobTitleModel.find({
-        category: category._id,
+        category: categoryId,
       }).exec()
     ).map((record) => record.title);
   }
-
-  async fetchJobPostsByCategory(categoryName: string): Promise<JobPost[]> {
-    const category = await this.JobCategoryModel.findOne({
-      name: categoryName,
-    }).exec();
-    if (!category) return [];
-    return this.JobPostModel.find({ category: category._id }).exec();
+  async jobPostsHistory(
+    providerId: string,
+    status?: string,
+  ): Promise<JobPost[]> {
+    try {
+      const { _id } = await this.userService.findById(providerId);
+      const query = status ? { provider: _id, status } : { provider: _id };
+      const history = await this.JobPostModel.find(query)
+        .sort({ createdAt: -1 })
+        .populate('jobTitle', '-_id title')
+        .exec();
+      return history;
+    } catch (error) {
+      throw new HttpException(
+        'Failed to fetch job post history',
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
-
-  async fetchJobPostsByJobTitle(jobTitleName: string): Promise<JobPost[]> {
-    const jobTitle = await this.JobTitleModel.findOne({
-      title: jobTitleName,
-    }).exec();
-    if (!jobTitle) return [];
-    return this.JobPostModel.find({ jobTitle: jobTitle._id }).exec();
-  }
-
   /**
    * @service : services to insert categories and titles : -
    * @NOTE:This services is for development/testing purposes only
@@ -116,7 +118,8 @@ export class JobPostService {
       );
       return 'insert done';
     } catch (error) {
-      console.log('error during inserting category');
+      console.log('error during inserting category', error);
+ 
       throw error;
     }
   }

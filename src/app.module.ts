@@ -25,9 +25,17 @@ import { JobPostModule } from './modules/job-post/job-post.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.local.env' }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: 'your_secret_key_here',
-      signOptions: { expiresIn: '1d' }, // Token expiration time
+    JwtModule.registerAsync({
+      // secret: 'your_secret_key_here',
+      // signOptions: { expiresIn: '1d' }, // Token expiration time (optional)
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get('JWT_KEY'),
+        signOptions: {
+          expiresIn: configService.get<string>('JWT_EXPIRE') + 'd',
+        },
+      }),
+      inject: [ConfigService],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
