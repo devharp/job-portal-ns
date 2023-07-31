@@ -1,7 +1,8 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { User, UserSchemaClass } from 'src/schema/users/user.schema';
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
-import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JobCategory } from 'src/schema/job-post/job.category.schema';
 import { JobTitle } from 'src/schema/job-post/job.title.schema';
@@ -33,7 +34,6 @@ export class JobPostService {
     });
     return postData;
   }
-
   async findAll(): Promise<JobPost[]> {
     const result = await this.JobPostModel.find().exec();
     return result;
@@ -54,7 +54,6 @@ export class JobPostService {
     const result = await this.JobPostModel.findByIdAndDelete(id).exec();
     return result;
   }
-
   /**
    * @service : filter services : -
    *
@@ -84,7 +83,6 @@ export class JobPostService {
       }).exec()
     ).map((record) => record.title);
   }
-
   async jobPostsHistory(
     providerId: string,
     status?: string,
@@ -121,6 +119,7 @@ export class JobPostService {
       return 'insert done';
     } catch (error) {
       console.log('error during inserting category', error);
+ 
       throw error;
     }
   }

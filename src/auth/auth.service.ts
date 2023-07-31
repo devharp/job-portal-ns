@@ -60,6 +60,7 @@ export class AuthService {
   }
 
   public async getUserById(id: string): Promise<User> {
+    console.log('in auth service userid --------------->', id);
     return await this.userModel.findById(id);
   }
 }

@@ -10,22 +10,29 @@ import {
   Request,
   NotFoundException,
   UseGuards,
+ 
   Query,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { JobPostService } from './job-post.service';
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
+import { Request as Req } from 'express';
+import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { validate } from 'class-validator';
 import { Roles } from 'src/auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
 @UseGuards(JwtAuthGuard)
 @UseGuards(RolesGuard)
-@Controller('job-post')
 export class JobPostController {
-  constructor(private readonly jobPostService: JobPostService) {}
-
+  constructor(
+    private readonly jobPostService: JobPostService,
+    @InjectModel(JobPost.name) private JobPostModel: Model<JobPost>,
+  ) {}
   @Roles('provider')
   @Post()
   async create(
@@ -46,7 +53,6 @@ export class JobPostController {
   async getJobPostById(@Param('id') id: number): Promise<JobPost> {
     return await this.jobPostService.findById(id);
   }
-
   @Roles('provider')
   @Put(':id')
   async update(
@@ -56,7 +62,6 @@ export class JobPostController {
   ): Promise<JobPost> {
     return await this.jobPostService.update(id, updateData);
   }
-
   @Roles('provider')
   @Delete(':id')
   async remove(@Param('id') id: string, @Res() res) {
@@ -77,12 +82,10 @@ export class JobPostController {
    * @routes : filter routes
    *
    */
-
   @Get('suggestions/dropdown')
   async getSuggestionsByCategory(@Query('category') category: string) {
     return await this.jobPostService.suggest(category);
   }
-
   @Get('history/posts')
   async getProvidersPost(@Request() req: any, @Query('status') status: string) {
     if (status && status !== 'active' && status !== 'inactive') {
