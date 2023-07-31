@@ -10,7 +10,6 @@ import {
   Request,
   NotFoundException,
   UseGuards,
- 
   Query,
   HttpException,
   HttpStatus,
@@ -28,6 +27,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
 @UseGuards(JwtAuthGuard)
 @UseGuards(RolesGuard)
+@Controller('job-post')
 export class JobPostController {
   constructor(
     private readonly jobPostService: JobPostService,
