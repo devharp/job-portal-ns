@@ -2,7 +2,6 @@ import {
   IsNotEmpty,
   IsString,
   IsNumber,
-  IsBoolean,
   IsOptional,
 } from 'class-validator';
 
@@ -20,7 +19,6 @@ export class CreateJobPostDto {
   location: string;
 
   @IsNotEmpty()
-  @IsNumber()
   salary: number[];
 
   @IsNotEmpty()
@@ -36,18 +34,14 @@ export class CreateJobPostDto {
   vacancies: number;
 
   @IsNotEmpty()
-  @IsString()
-  experienceLevel: string;
+  @IsNumber()
+  experienceLevel: number;
 
   @IsNotEmpty()
   @IsString()
-  jobCategory: string; // category
+  JobCategory: string;
 
   @IsNotEmpty()
   @IsString()
-  Title: string; // title
-
-  @IsNotEmpty()
-  @IsString()
-  status: string;
+  Title: string;
 }
