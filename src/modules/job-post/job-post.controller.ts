@@ -25,6 +25,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
+import { UpdateJobPostDto } from 'src/constants/dto/update-job-post.dto';
 @UseGuards(JwtAuthGuard)
 @UseGuards(RolesGuard)
 @Controller('job-post')
@@ -57,10 +58,10 @@ export class JobPostController {
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body()
-    updateData: JobPost,
+    @Body(globalValidationPipe)
+    updateJobPostDto: UpdateJobPostDto,
   ): Promise<JobPost> {
-    return await this.jobPostService.update(id, updateData);
+    return await this.jobPostService.update(id, updateJobPostDto);
   }
   @Roles('provider')
   @Delete(':id')
