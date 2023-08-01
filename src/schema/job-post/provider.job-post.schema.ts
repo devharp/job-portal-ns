@@ -24,27 +24,24 @@ export class JobPost extends Document {
   JobType: string;
 
   @Prop()
-  postedDate: Date;
-
-  @Prop()
   contactEmail: string;
 
   @Prop()
   vacancies: number;
 
   @Prop()
-  experienceLevel: string;
+  experienceLevel: number;
 
   @Prop({ type: Types.ObjectId, ref: 'jobCategory' })
   category: Category;
-  
+
   @Prop({ type: Types.ObjectId, ref: 'User' })
   provider: User;
 
   @Prop({ type: Types.ObjectId, ref: 'JobTitle' })
   jobTitle: JobTitle;
 
-  @Prop()
+  @Prop({ default: 'active' })
   status: string;
 }
 export const JobPostSchema = SchemaFactory.createForClass(JobPost);

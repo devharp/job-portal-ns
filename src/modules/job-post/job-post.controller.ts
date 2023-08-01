@@ -36,11 +36,11 @@ export class JobPostController {
   @Roles('provider')
   @Post()
   async create(
-    @Body(globalValidationPipe) CreateJobPostDto: any,
+    @Body(globalValidationPipe) createJobPostDto: CreateJobPostDto,
     @Request() req: any,
   ) {
     const provider: string = req.user.id;
-    const result = await this.jobPostService.create(CreateJobPostDto, provider);
+    const result = await this.jobPostService.create(createJobPostDto, provider);
     return result;
   }
 

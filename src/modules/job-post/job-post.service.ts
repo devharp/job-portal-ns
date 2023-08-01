@@ -24,10 +24,10 @@ export class JobPostService {
     private encryptionService: EncryptionService,
   ) {}
   async create(createJobPostDto: CreateJobPostDto, provider: string) {
-    const { jobCategory, Title } = createJobPostDto;
+    const { JobCategory, Title } = createJobPostDto;
     const category = await this.findIdOfCategoryOrTitle(
       'category',
-      jobCategory,
+      JobCategory,
     );
     const title = await this.findIdOfCategoryOrTitle('title', Title);
     const { _id } = await this.userService.findById(provider);
