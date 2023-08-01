@@ -4,6 +4,7 @@ import {
   HttpException,
   HttpStatus,
   InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
@@ -47,19 +48,22 @@ export class UserRegistrationService {
         case USER_ROLE.SEEKER:
           const userSeeker = plainToClass(UserSeekerDTO, user);
           await this.validateUserDTO(userSeeker, UserSeekerDTO);
-          this.addSeeker(userSeeker);
+          await this.addSeeker(userSeeker);
           return { message: 'seeker' };
+
         case USER_ROLE.PROVIDER:
           const userProvider = plainToClass(UserProviderDTO, user);
           await this.validateUserDTO(userProvider, UserProviderDTO);
-          this.addProvider(userProvider);
+          await this.addProvider(userProvider);
           return { message: 'provider' };
       }
       return 'ok';
     } catch (error) {
-      throw new InternalServerErrorException(
-        'An error has occurred while adding a user',
-      );
+      if (error.code === 11000) {
+        throw new ConflictException('Email or phone number already exists');
+      } else {
+        throw new InternalServerErrorException(error.response.message);
+      }
     }
   }
 
@@ -95,24 +99,18 @@ export class UserRegistrationService {
   }
 
   private async addProvider(provider: UserProviderDTO) {
-    try {
-      const userData = await this.userModel.create(
-        classToPlain(
-          plainToClass(UserSchemaClass, {
-            ...provider,
-            password: await bcrypt.hash(provider.password, 10),
-          }),
-        ),
-      );
-      await this.userProviderModel.create({
-        ...classToPlain(plainToClass(UserProviderSchemaClass, provider)),
-        user: userData._id,
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'An error has occurred while adding a user',
-      );
-    }
+    const userData = await this.userModel.create(
+      classToPlain(
+        plainToClass(UserSchemaClass, {
+          ...provider,
+          password: await bcrypt.hash(provider.password, 10),
+        }),
+      ),
+    );
+    await this.userProviderModel.create({
+      ...classToPlain(plainToClass(UserProviderSchemaClass, provider)),
+      user: userData._id,
+    });
   }
 
   private async validateUserDTO(user: UserDTO, DTOClass: any): Promise<void> {
