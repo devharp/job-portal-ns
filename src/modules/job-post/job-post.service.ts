@@ -99,7 +99,14 @@ export class JobPostService {
         .sort({ createdAt: -1 })
         .populate('jobTitle', '-_id title')
         .exec();
-      return history;
+      return history.length !== 0
+        ? history
+        : Promise.reject(
+            new HttpException(
+              'No job posts found with the specified status',
+              HttpStatus.NOT_FOUND,
+            ),
+          );
     } catch (error) {
       throw new HttpException(
         'Failed to fetch job post history',

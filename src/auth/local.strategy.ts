@@ -41,6 +41,6 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
     return user
       ? { ...user, access_token: this.authService.generateJwtToken(user) }
-      : Promise.reject(new UnauthorizedException());
+      : Promise.reject(new UnauthorizedException('Invalid email or password'));
   }
 }
