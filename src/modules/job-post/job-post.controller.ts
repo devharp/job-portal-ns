@@ -55,13 +55,14 @@ export class JobPostController {
     return await this.jobPostService.findById(id);
   }
   @Roles('provider')
-  @Put(':id')
+  @Put('/update/:id')
   async update(
     @Param('id') id: string,
     @Body(globalValidationPipe)
     updateJobPostDto: UpdateJobPostDto,
   ): Promise<JobPost> {
-    return await this.jobPostService.update(id, updateJobPostDto);
+    const result = await this.jobPostService.update(id, updateJobPostDto);
+    return result;
   }
   @Roles('provider')
   @Delete(':id')

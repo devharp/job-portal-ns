@@ -54,25 +54,28 @@ export class JobPostService {
     id: string,
     updateJobPostDto: UpdateJobPostDto,
   ): Promise<JobPost> {
-    const { JobCategory, Title } = updateJobPostDto;
-    const category = await this.findIdOfCategoryOrTitle(
-      'category',
-      JobCategory,
-    );
-    const title = await this.findIdOfCategoryOrTitle('title', Title);
-    const result = await this.JobPostModel.findByIdAndUpdate(
-      id,
-      {
-        ...updateJobPostDto,
-        category: category[0],
-        jobTitle: title[0],
-      },
-      {
-        new: true,
-      },
-    ).exec();
-
-    return result;
+    try {
+      const { JobCategory, Title } = updateJobPostDto;
+      const category = await this.findIdOfCategoryOrTitle(
+        'category',
+        JobCategory,
+      );
+      const title = await this.findIdOfCategoryOrTitle('title', Title);
+      const result = await this.JobPostModel.findByIdAndUpdate(
+        id,
+        {
+          ...updateJobPostDto,
+          category: category[0],
+          jobTitle: title[0],
+        },
+        {
+          new: true,
+        },
+      ).exec();
+      return result;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
   }
 
   async delete(id: string): Promise<JobPost> {
