@@ -1,4 +1,24 @@
-import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  Min,
+  Max,
+} from 'class-validator';
+
+class SalaryObject {
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  min?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  max?: number;
+}
 
 export class CreateJobPostDto {
   @IsNotEmpty()
@@ -13,8 +33,8 @@ export class CreateJobPostDto {
   @IsString()
   location: string;
 
-  @IsNotEmpty()
-  salary: number[];
+  @IsOptional()
+  salary: object | null;
 
   @IsNotEmpty()
   @IsString()
@@ -31,10 +51,6 @@ export class CreateJobPostDto {
   @IsNotEmpty()
   @IsNumber()
   experienceLevel: number;
-
-  @IsNotEmpty()
-  @IsString()
-  JobCategory: string;
 
   @IsNotEmpty()
   @IsString()
