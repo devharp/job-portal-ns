@@ -7,7 +7,7 @@ import {
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
 import { User, UserSchemaClass } from 'src/schema/users/user.schema';
 import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
-import { Model } from 'mongoose';
+import { Model, PaginateResult, PaginateModel } from 'mongoose';
 import { JobCategory } from 'src/schema/job-post/job.category.schema';
 import { JobTitle } from 'src/schema/job-post/job.title.schema';
 import { category, titles } from '../../utilities/static.array';
@@ -18,7 +18,7 @@ import { UpdateJobPostDto } from 'src/constants/dto/update-job-post.dto';
 @Injectable()
 export class JobPostService {
   constructor(
-    @InjectModel('JobPost') private JobPostModel: Model<JobPost>,
+    @InjectModel('JobPost') private JobPostModel: PaginateModel<JobPost>,
     @InjectModel('JobCategory') private JobCategoryModel: Model<JobCategory>,
     @InjectModel('JobTitle') private JobTitleModel: Model<JobTitle>,
     private userService: UserRegistrationService,
@@ -111,18 +111,24 @@ export class JobPostService {
       }).exec()
     ).map((record) => record.title);
   }
+
   async jobPostsHistory(
     providerId: string,
     status?: string,
-  ): Promise<JobPost[]> {
+    page: number = 2,
+    perPage: number = 2,
+  ): Promise<PaginateResult<JobPost>> {
     try {
       const { _id } = await this.userService.findById(providerId);
       const query = status ? { provider: _id, status } : { provider: _id };
-      const history = await this.JobPostModel.find(query)
-        .sort({ createdAt: -1 })
-        .populate('jobTitle', '-_id title')
-        .exec();
-      return history.length !== 0
+      const options = {
+        sort: { createdAt: -1 },
+        page: page,
+        limit: perPage,
+        populate: { path: 'jobTitle', select: '-_id title' },
+      };
+      const history = await this.JobPostModel.paginate(query, options);
+      return history.docs.length !== 0
         ? history
         : Promise.reject(
             new HttpException(
@@ -133,10 +139,11 @@ export class JobPostService {
     } catch (error) {
       throw new HttpException(
         'Failed to fetch job post history',
-        HttpStatus.NOT_FOUND,
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
+
   /**
    * @service : services to insert categories and titles : -
    * @NOTE:This services is for development/testing purposes only
