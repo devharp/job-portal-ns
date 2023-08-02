@@ -10,7 +10,6 @@ import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
 import { Model, PaginateResult, PaginateModel } from 'mongoose';
 import { JobCategory } from 'src/schema/job-post/job.category.schema';
 import { JobTitle } from 'src/schema/job-post/job.title.schema';
-import { category, titles } from '../../utilities/static.array';
 import { UserRegistrationService } from '../user-registration/user-registration.service';
 import { EncryptionService } from 'src/utilities/encryption.service';
 import { InjectModel } from '@nestjs/mongoose';
@@ -131,55 +130,6 @@ export class JobPostService {
         'Failed to fetch job post history',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    }
-  }
-
-  /**
-   * @service : services to insert categories and titles : -
-   * @NOTE:This services is for development/testing purposes only
-   * and should not be used in production
-   */
-
-  async insertCategory() {
-    try {
-      await Promise.all(
-        category.map(async (categ) => {
-          const newCategory = new this.JobCategoryModel({ name: categ });
-          await newCategory.save();
-        }),
-      );
-      return 'insert done';
-    } catch (error) {
-      console.log('error during inserting category', error);
-
-      throw error;
-    }
-  }
-
-  async insertTitles() {
-    try {
-      for (const titleObj of titles) {
-        const category = await this.JobCategoryModel.findOne({
-          name: titleObj.category,
-        }).exec();
-        if (!category) {
-          console.log(`Category not found for: ${titleObj.category}`);
-          continue;
-        }
-        await Promise.all(
-          titleObj.domain.map(async (title) => {
-            const newTitle = new this.JobTitleModel({
-              title,
-              category: category._id,
-            });
-            await newTitle.save();
-          }),
-        );
-      }
-      return 'insert done';
-    } catch (error) {
-      console.error('Error inserting JobTitle data:', error);
-      throw error;
     }
   }
 }
