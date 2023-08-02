@@ -14,6 +14,7 @@ import { category, titles } from '../../utilities/static.array';
 import { UserRegistrationService } from '../user-registration/user-registration.service';
 import { EncryptionService } from 'src/utilities/encryption.service';
 import { InjectModel } from '@nestjs/mongoose';
+import { UpdateJobPostDto } from 'src/constants/dto/update-job-post.dto';
 @Injectable()
 export class JobPostService {
   constructor(
@@ -49,10 +50,32 @@ export class JobPostService {
     return result;
   }
 
-  async update(id: string, updateData: object): Promise<JobPost> {
-    return this.JobPostModel.findByIdAndUpdate(id, updateData, {
-      new: true,
-    }).exec();
+  async update(
+    id: string,
+    updateJobPostDto: UpdateJobPostDto,
+  ): Promise<JobPost> {
+    try {
+      const { JobCategory, Title } = updateJobPostDto;
+      const category = await this.findIdOfCategoryOrTitle(
+        'category',
+        JobCategory,
+      );
+      const title = await this.findIdOfCategoryOrTitle('title', Title);
+      const result = await this.JobPostModel.findByIdAndUpdate(
+        id,
+        {
+          ...updateJobPostDto,
+          category: category[0],
+          jobTitle: title[0],
+        },
+        {
+          new: true,
+        },
+      ).exec();
+      return result;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
   }
 
   async delete(id: string): Promise<JobPost> {
