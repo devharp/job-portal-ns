@@ -1,4 +1,4 @@
-import {IsString, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsNumber, IsOptional } from 'class-validator';
 
 export class UpdateJobPostDto {
   @IsOptional()
@@ -14,7 +14,7 @@ export class UpdateJobPostDto {
   location: string;
 
   @IsOptional()
-  salary: number[];
+  salary: object | null;
 
   @IsOptional()
   @IsString()

@@ -24,17 +24,12 @@ export class JobPostService {
     private encryptionService: EncryptionService,
   ) {}
   async create(createJobPostDto: CreateJobPostDto, provider: string) {
-    const { JobCategory, Title } = createJobPostDto;
-    const category = await this.findIdOfCategoryOrTitle(
-      'category',
-      JobCategory,
-    );
+    const { Title } = createJobPostDto;
     const title = await this.findIdOfCategoryOrTitle('title', Title);
     const { _id } = await this.userService.findById(provider);
     const postData = await this.JobPostModel.create({
       ...createJobPostDto,
       provider: _id,
-      category: category[0],
       jobTitle: title[0],
     });
     return postData;
@@ -54,17 +49,12 @@ export class JobPostService {
     updateJobPostDto: UpdateJobPostDto,
   ): Promise<JobPost> {
     try {
-      const { JobCategory, Title } = updateJobPostDto;
-      const category = await this.findIdOfCategoryOrTitle(
-        'category',
-        JobCategory,
-      );
+      const { Title } = updateJobPostDto;
       const title = await this.findIdOfCategoryOrTitle('title', Title);
       const result = await this.JobPostModel.findByIdAndUpdate(
         id,
         {
           ...updateJobPostDto,
-          category: category[0],
           jobTitle: title[0],
         },
         {
