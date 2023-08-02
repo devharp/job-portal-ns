@@ -2,6 +2,7 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, HydratedDocument, Types } from 'mongoose';
 import { JobTitle } from './job.title.schema';
 import { User } from '../users/user.schema';
+import * as mongoosePaginate from 'mongoose-paginate-v2';
 
 export type JobPostDocument = HydratedDocument<JobPost>;
 
@@ -47,4 +48,6 @@ export class JobPost extends Document {
   @Prop({ default: 'active' })
   status: string;
 }
+
 export const JobPostSchema = SchemaFactory.createForClass(JobPost);
+JobPostSchema.plugin(mongoosePaginate);

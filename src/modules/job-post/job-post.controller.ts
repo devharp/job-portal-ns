@@ -89,14 +89,24 @@ export class JobPostController {
     return await this.jobPostService.suggest(category);
   }
   @Get('history/posts')
-  async getProvidersPost(@Request() req: any, @Query('status') status: string) {
+  async getProvidersPost(
+    @Request() req: any,
+    @Query('status') status: string,
+    @Query('page') page?: number,
+    @Query('perPage') perPage?: number,
+  ) {
     if (status && status !== 'active' && status !== 'inactive') {
       throw new HttpException(
         'Invalid status parameter',
         HttpStatus.BAD_REQUEST,
       );
     }
-    return await this.jobPostService.jobPostsHistory(req.user.id, status);
+    return await this.jobPostService.jobPostsHistory(
+      req.user.id,
+      status,
+      page,
+      perPage,
+    );
   }
   /**
    * @routes : routes to insert categories and titles : -
