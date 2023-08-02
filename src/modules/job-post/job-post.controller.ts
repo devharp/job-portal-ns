@@ -108,19 +108,4 @@ export class JobPostController {
       perPage,
     );
   }
-  /**
-   * @routes : routes to insert categories and titles : -
-   * @NOTE:This routes is for development/testing purposes only
-   * and should not be used in production
-   */
-
-  @Post('add-category')
-  async insertCategory() {
-    return await this.jobPostService.insertCategory();
-  }
-
-  @Post('add-title')
-  async insertTitle() {
-    return await this.jobPostService.insertTitles();
-  }
 }
