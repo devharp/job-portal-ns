@@ -12,6 +12,9 @@ export class UserSeeker extends Document {
   user: Types.ObjectId;
 
   @Prop()
+  dob: string;
+
+  @Prop()
   isExperienced: boolean;
 }
 
