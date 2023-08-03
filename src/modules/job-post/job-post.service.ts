@@ -104,8 +104,8 @@ export class JobPostService {
   async jobPostsHistory(
     providerId: string,
     status?: string,
-    page: number = 2,
-    perPage: number = 2,
+    page: number = 1,
+    perPage: number = 10,
   ): Promise<PaginateResult<JobPost>> {
     try {
       const { _id } = await this.userService.findById(providerId);
