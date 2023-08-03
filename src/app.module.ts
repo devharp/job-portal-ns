@@ -19,6 +19,7 @@ import {
 import { LocalStrategy } from './auth/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/jwt.strategy';
+import { LocationModule } from './modules/location/location.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { JwtStrategy } from './auth/jwt.strategy';
     ]),
     UserRegistrationModule,
     UserLoginModule,
+    LocationModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService, LocalStrategy, JwtStrategy],
