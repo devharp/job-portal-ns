@@ -21,6 +21,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { JobPostModule } from './modules/job-post/job-post.module';
 import { JobApplicationModule } from './modules/job-application/job-application.module';
+import { LocationModule } from './modules/location/location.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { JobApplicationModule } from './modules/job-application/job-application.
     UserLoginModule,
     JobPostModule,
     JobApplicationModule,
+    LocationModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService, LocalStrategy, JwtStrategy],
