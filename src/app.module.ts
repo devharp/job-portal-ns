@@ -20,6 +20,7 @@ import { LocalStrategy } from './auth/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/jwt.strategy';
 import { JobPostModule } from './modules/job-post/job-post.module';
+import { JobApplicationModule } from './modules/job-application/job-application.module';
 import { LocationModule } from './modules/location/location.module';
 
 @Module({
@@ -62,6 +63,7 @@ import { LocationModule } from './modules/location/location.module';
     UserRegistrationModule,
     UserLoginModule,
     JobPostModule,
+    JobApplicationModule,
     LocationModule,
   ],
   controllers: [AppController],
