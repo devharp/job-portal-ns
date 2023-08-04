@@ -63,7 +63,7 @@ export class JobPostService {
       ).exec();
       return result;
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      return error.message;
     }
   }
 

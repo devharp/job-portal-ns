@@ -26,6 +26,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
 import { UpdateJobPostDto } from 'src/constants/dto/update-job-post.dto';
+import { throwError } from 'rxjs';
 @UseGuards(JwtAuthGuard)
 @UseGuards(RolesGuard)
 @Controller('job-post')
@@ -62,6 +63,9 @@ export class JobPostController {
     updateJobPostDto: UpdateJobPostDto,
   ): Promise<JobPost> {
     const result = await this.jobPostService.update(id, updateJobPostDto);
+    if (!result) {
+      throw new NotFoundException(`Job post with ID not found `);
+    }
     return result;
   }
   @Roles('provider')

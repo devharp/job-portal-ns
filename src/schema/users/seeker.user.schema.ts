@@ -12,6 +12,9 @@ export class UserSeeker extends Document {
   user: Types.ObjectId;
 
   @Prop()
+  dob: string;
+
+  @Prop()
   isExperienced: boolean;
 }
 
@@ -20,6 +23,9 @@ export class UserSeekerSchemaClass {
   @Expose({ name: 'isExperienced' })
   @IsBoolean()
   isExperienced: boolean;
+
+  @Expose()
+  dob: string;
 }
 
 export const UserSeekerSchema = SchemaFactory.createForClass(UserSeeker);
