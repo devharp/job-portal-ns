@@ -38,7 +38,7 @@ export class CreateJobPostDto {
 
   @IsNotEmpty()
   @IsString()
-  JobType: string;
+  jobType: string;
 
   @IsNotEmpty()
   @IsString()
