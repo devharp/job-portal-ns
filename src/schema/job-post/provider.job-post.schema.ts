@@ -6,7 +6,10 @@ import * as mongoosePaginate from 'mongoose-paginate-v2';
 
 export type JobPostDocument = HydratedDocument<JobPost>;
 
-@Schema({ collection: 'job-post', timestamps: true })
+@Schema({
+  collection: 'job-post',
+  timestamps: false,
+})
 export class JobPost extends Document {
   @Prop()
   OrganizationName: string;
@@ -47,6 +50,9 @@ export class JobPost extends Document {
 
   @Prop({ default: 'active' })
   status: string;
+
+  @Prop({ default: () => new Date().toISOString().split('T')[0] })
+  postedOn: string;
 }
 
 export const JobPostSchema = SchemaFactory.createForClass(JobPost);
