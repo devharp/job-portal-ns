@@ -47,7 +47,7 @@ export class UserDTO extends BaseUserDTO {
   @IsString()
   organization?: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   dob?: string;
 }
@@ -57,6 +57,10 @@ export class UserSeekerDTO extends BaseUserDTO {
   @IsString()
   @IsIn([USER_ROLE.SEEKER])
   role: string;
+
+  @IsNotEmpty()
+  @IsString()
+  dob: string;
 
   @IsOptional()
   @IsEmpty({ message: 'organization is not allowed' })

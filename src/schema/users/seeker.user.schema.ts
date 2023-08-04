@@ -23,6 +23,9 @@ export class UserSeekerSchemaClass {
   @Expose({ name: 'isExperienced' })
   @IsBoolean()
   isExperienced: boolean;
+
+  @Expose()
+  dob: string;
 }
 
 export const UserSeekerSchema = SchemaFactory.createForClass(UserSeeker);
