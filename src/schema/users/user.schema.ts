@@ -22,9 +22,6 @@ export class User extends Document {
   @Prop({ unique: true })
   mobileNo: string;
 
-  @Prop()
-  dob: string;
-
   @Prop({ enum: USER_ROLE, default: USER_ROLE.SEEKER })
   role: string;
 
