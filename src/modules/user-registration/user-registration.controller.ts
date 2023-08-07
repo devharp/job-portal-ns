@@ -15,6 +15,9 @@ import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
 import { UserDTO } from 'src/constants/dto/user.dto.class';
 import { resetPasswordDto } from 'src/constants/dto/mail.dto.class';
 import { FileInterceptor } from '@nestjs/platform-express';
+import * as fs from 'fs';
+import * as path from 'path';
+
 @Controller('user-registration')
 export class UserRegistrationController {
   constructor(
@@ -62,10 +65,22 @@ export class UserRegistrationController {
     return this.userRegistrationService.delete(id);
   }
 
-  @Post()
+  @Post('/update')
   @UseInterceptors(FileInterceptor('avatar')) // 'avatar' should match the field name in the HTML form
   async createUser(@UploadedFile() avatar: Express.Multer.File) {
-    // const user = await this.userService.createUser(createUserDto, avatar);
-    return user;
+    console.log('user controller---------->', avatar);
+    const timestamp = new Date().toISOString().replace(/:/g, '-'); // Generate timestamp for filename
+    const uploadedFileName = `${timestamp}-${avatar.originalname}`; // New filename
+    const publicFilePath = path.join(
+      __dirname,
+      '..',
+      './../../public',
+      uploadedFileName,
+    );
+    console.log('user controller---------->', publicFilePath);
+    // Write the file to the public folder
+    fs.writeFileSync(publicFilePath, avatar.buffer);
+
+    return { message: 'File uploaded successfully' };
   }
 }

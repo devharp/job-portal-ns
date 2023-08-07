@@ -12,7 +12,7 @@ export type JobPostDocument = HydratedDocument<JobPost>;
 })
 export class JobPost extends Document {
   @Prop()
-  OrganizationName: string;
+  organizationName: string;
 
   @Prop()
   location: string;
