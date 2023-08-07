@@ -9,6 +9,14 @@ export type JobPostDocument = HydratedDocument<JobPost>;
 @Schema({
   collection: 'job-post',
   timestamps: false,
+  toJSON: {
+    virtuals: true,
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+    },
+  },
 })
 export class JobPost extends Document {
   @Prop()
