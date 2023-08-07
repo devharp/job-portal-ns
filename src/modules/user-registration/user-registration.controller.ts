@@ -6,13 +6,15 @@ import {
   Param,
   Post,
   Put,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserRegistrationService } from './user-registration.service';
 import { User } from 'src/schema/users/user.schema';
 import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
 import { UserDTO } from 'src/constants/dto/user.dto.class';
 import { resetPasswordDto } from 'src/constants/dto/mail.dto.class';
-
+import { FileInterceptor } from '@nestjs/platform-express';
 @Controller('user-registration')
 export class UserRegistrationController {
   constructor(
@@ -58,5 +60,12 @@ export class UserRegistrationController {
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<User> {
     return this.userRegistrationService.delete(id);
+  }
+
+  @Post()
+  @UseInterceptors(FileInterceptor('avatar')) // 'avatar' should match the field name in the HTML form
+  async createUser(@UploadedFile() avatar: Express.Multer.File) {
+    // const user = await this.userService.createUser(createUserDto, avatar);
+    return user;
   }
 }
