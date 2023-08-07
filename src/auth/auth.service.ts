@@ -41,7 +41,7 @@ export class AuthService {
    * @param user - The user object to be cleaned.
    * @returns The cleaned user object without the password field.
    */
-  private cleanUser(user: User) {
+  cleanUser(user: User) {
     const { _id, password, token, ...cleanedUser } = user;
     return {
       ...cleanedUser,
