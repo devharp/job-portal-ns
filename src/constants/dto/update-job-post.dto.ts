@@ -3,7 +3,7 @@ import { IsString, IsNumber, IsOptional } from 'class-validator';
 export class UpdateJobPostDto {
   @IsOptional()
   @IsString()
-  OrganizationName: string;
+  organizationName: string;
 
   @IsOptional()
   @IsString()
@@ -34,11 +34,7 @@ export class UpdateJobPostDto {
 
   @IsOptional()
   @IsString()
-  JobCategory: string;
-
-  @IsOptional()
-  @IsString()
-  Title: string;
+  title: string;
 
   @IsOptional()
   @IsString()

@@ -26,13 +26,13 @@ export class JobPostService {
     private helperService: Helper,
   ) {}
   async create(createJobPostDto: CreateJobPostDto, provider: string) {
-    const { Title } = createJobPostDto;
-    const title = await this.findIdOfCategoryOrTitle('title', Title);
+    const { title } = createJobPostDto;
+    const Title = await this.findIdOfCategoryOrTitle('title', title);
     const { _id } = await this.userService.findById(provider);
     const postData = await this.JobPostModel.create({
       ...createJobPostDto,
       provider: _id,
-      jobTitle: title[0],
+      jobTitle: Title[0],
     });
     return postData;
   }
@@ -51,13 +51,13 @@ export class JobPostService {
     updateJobPostDto: UpdateJobPostDto,
   ): Promise<JobPost> {
     try {
-      const { Title } = updateJobPostDto;
-      const title = await this.findIdOfCategoryOrTitle('title', Title);
+      const { title } = updateJobPostDto;
+      const Title = await this.findIdOfCategoryOrTitle('title', title);
       const result = await this.JobPostModel.findByIdAndUpdate(
         id,
         {
           ...updateJobPostDto,
-          jobTitle: title[0],
+          jobTitle: Title[0],
         },
         {
           new: true,
@@ -102,7 +102,7 @@ export class JobPostService {
       }).exec()
     ).map((record) => record.title);
   }
-
+  // provider:- view history
   async jobPostsHistory(
     providerId: string,
     status?: string,

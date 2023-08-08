@@ -23,7 +23,7 @@ class SalaryObject {
 export class CreateJobPostDto {
   @IsNotEmpty()
   @IsString()
-  OrganizationName: string;
+  organizationName: string;
 
   @IsNotEmpty()
   @IsString()
@@ -54,5 +54,5 @@ export class CreateJobPostDto {
 
   @IsNotEmpty()
   @IsString()
-  Title: string;
+  title: string;
 }
