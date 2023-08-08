@@ -15,6 +15,7 @@ import {
 } from 'src/schema/users/provider.user.schema';
 import { MailService } from 'src/utilities/mail.service';
 import { EncryptionService } from 'src/utilities/encryption.service';
+import { Helper } from 'src/utilities/helper.service';
 
 @Module({
   imports: [
@@ -56,7 +57,7 @@ import { EncryptionService } from 'src/utilities/encryption.service';
     }),
   ],
   controllers: [UserRegistrationController],
-  providers: [UserRegistrationService, MailService, EncryptionService],
-  exports: [EncryptionService, MailService, UserRegistrationService],
+  providers: [UserRegistrationService, MailService, EncryptionService, Helper],
+  exports: [EncryptionService, MailService, UserRegistrationService, Helper],
 })
 export class UserRegistrationModule {}

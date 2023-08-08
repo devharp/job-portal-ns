@@ -96,6 +96,8 @@ export class JobPostController {
   async getProvidersPost(
     @Request() req: any,
     @Query('status') status: string,
+    @Query('from') from: string,
+    @Query('to') to: string,
     @Query('page') page?: number,
     @Query('perPage') perPage?: number,
   ) {
@@ -108,6 +110,8 @@ export class JobPostController {
     return await this.jobPostService.jobPostsHistory(
       req.user.id,
       status,
+      from,
+      to,
       page,
       perPage,
     );
