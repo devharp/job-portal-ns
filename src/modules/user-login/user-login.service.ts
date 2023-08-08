@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { LoginDto } from 'src/constants/dto/user-login.dto.class';
-import { User } from 'src/schema/users/user.schema';
+import { LoginDto } from './../../../src/constants/dto/user-login.dto.class';
+import { User } from './../../../src/schema/users/user.schema';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()

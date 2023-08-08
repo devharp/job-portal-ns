@@ -13,12 +13,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UserRegistrationService } from './user-registration.service';
-import { User } from 'src/schema/users/user.schema';
-import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
-import { UserDTO } from 'src/constants/dto/user.dto.class';
-import { resetPasswordDto } from 'src/constants/dto/mail.dto.class';
+import { User } from './../../../src/schema/users/user.schema';
+import { globalValidationPipe } from './../../../src/pipes/global-validation.pipe';
+import { UserDTO } from './../../../src/constants/dto/user.dto.class';
+import { resetPasswordDto } from './../../../src/constants/dto/mail.dto.class';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UserUpdateDto } from 'src/constants/dto/user.update.dto';
+import { UserUpdateDto } from './../../../src/constants/dto/user.update.dto';
 @Controller('user-registration')
 export class UserRegistrationController {
   constructor(
@@ -69,6 +69,7 @@ export class UserRegistrationController {
     @UploadedFile() avatar: Express.Multer.File,
   ) {
     const user = await this.userRegistrationService.update(id, body, avatar);
+    if (!user) throw new HttpException('id not found', HttpStatus.BAD_REQUEST);
     return { message: ' user profile updated successfully', user: user };
   }
 }

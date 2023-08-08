@@ -4,18 +4,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserRegistrationController } from './user-registration.controller';
 import { UserRegistrationService } from './user-registration.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/schema/users/user.schema';
+import { User, UserSchema } from './../../../src/schema/users/user.schema';
 import {
   UserSeeker,
   UserSeekerSchema,
-} from 'src/schema/users/seeker.user.schema';
+} from './../../../src/schema/users/seeker.user.schema';
 import {
   UserProvider,
   UserProviderSchema,
-} from 'src/schema/users/provider.user.schema';
-import { MailService } from 'src/utilities/mail.service';
-import { EncryptionService } from 'src/utilities/encryption.service';
-import { Helper } from 'src/utilities/helper.service';
+} from './../../../src/schema/users/provider.user.schema';
+import { MailService } from './../../../src/utilities/mail.service';
+import { EncryptionService } from './../../../src/utilities/encryption.service';
+import { Helper } from './../../../src/utilities/helper.service';
 
 @Module({
   imports: [
