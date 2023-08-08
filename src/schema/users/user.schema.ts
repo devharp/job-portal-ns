@@ -7,6 +7,14 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema({
   collection: 'user',
+  toJSON: {
+    virtuals: true,
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+    },
+  },
 })
 export class User extends Document {
   @Prop()
@@ -26,6 +34,9 @@ export class User extends Document {
 
   @Prop({ enum: USER_ROLE, default: USER_ROLE.SEEKER })
   role: string;
+
+  @Prop({ default: null })
+  avatar: string;
 
   @Prop({
     type: {

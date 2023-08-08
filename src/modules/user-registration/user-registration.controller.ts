@@ -2,11 +2,14 @@ import {
   Body,
   Controller,
   Delete,
+  Req,
   Get,
   Param,
   Post,
   Put,
   UploadedFile,
+  HttpException,
+  HttpStatus,
   UseInterceptors,
 } from '@nestjs/common';
 import { UserRegistrationService } from './user-registration.service';
@@ -15,9 +18,7 @@ import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
 import { UserDTO } from 'src/constants/dto/user.dto.class';
 import { resetPasswordDto } from 'src/constants/dto/mail.dto.class';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as fs from 'fs';
-import * as path from 'path';
-
+import { UserUpdateDto } from 'src/constants/dto/user.update.dto';
 @Controller('user-registration')
 export class UserRegistrationController {
   constructor(
@@ -55,32 +56,19 @@ export class UserRegistrationController {
     return this.userRegistrationService.findById(id);
   }
 
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() user: User): Promise<User> {
-    return this.userRegistrationService.update(id, user);
-  }
-
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<User> {
     return this.userRegistrationService.delete(id);
   }
-
-  @Post('/update')
-  @UseInterceptors(FileInterceptor('avatar')) // 'avatar' should match the field name in the HTML form
-  async createUser(@UploadedFile() avatar: Express.Multer.File) {
-    console.log('user controller---------->', avatar);
-    const timestamp = new Date().toISOString().replace(/:/g, '-'); // Generate timestamp for filename
-    const uploadedFileName = `${timestamp}-${avatar.originalname}`; // New filename
-    const publicFilePath = path.join(
-      __dirname,
-      '..',
-      './../../public',
-      uploadedFileName,
-    );
-    console.log('user controller---------->', publicFilePath);
-    // Write the file to the public folder
-    fs.writeFileSync(publicFilePath, avatar.buffer);
-
-    return { message: 'File uploaded successfully' };
+  // update user profile details
+  @Put('/update-profile/:id')
+  @UseInterceptors(FileInterceptor('avatar'))
+  async createUser(
+    @Param('id') id: string,
+    @Body(globalValidationPipe) body: UserUpdateDto,
+    @UploadedFile() avatar: Express.Multer.File,
+  ) {
+    const user = await this.userRegistrationService.update(id, body, avatar);
+    return { message: ' user profile updated successfully', user: user };
   }
 }

@@ -100,7 +100,7 @@ export class JobPostService {
       }).exec()
     ).map((record) => record.title);
   }
-  // provider- view history
+  // provider:- view history
   async jobPostsHistory(
     providerId: string,
     status?: string,
