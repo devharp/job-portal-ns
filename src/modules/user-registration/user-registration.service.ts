@@ -5,6 +5,7 @@ import {
   HttpStatus,
   InternalServerErrorException,
   ConflictException,
+  UploadedFile,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
@@ -29,7 +30,8 @@ import { User, UserSchemaClass } from 'src/schema/users/user.schema';
 import { MailService } from 'src/utilities/mail.service';
 import * as bcrypt from 'bcrypt';
 import { EncryptionService } from 'src/utilities/encryption.service';
-
+import * as fs from 'fs';
+import * as path from 'path';
 @Injectable()
 export class UserRegistrationService {
   constructor(
@@ -75,8 +77,24 @@ export class UserRegistrationService {
     return this.userModel.findById(id).exec();
   }
 
-  async update(id: string, user: User): Promise<User> {
-    return this.userModel.findByIdAndUpdate(id, user, { new: true }).exec();
+  async update(id: string, user: any, avatar: any): Promise<User> {
+    if (!this.isValidFile(avatar)) {
+      throw new HttpException('Invalid file.', HttpStatus.BAD_REQUEST);
+    }
+    const timestamp = new Date().toISOString().replace(/[:.]/g, ''); 
+    const extension = path.parse(avatar.originalname).ext;
+    const uploadedFileName = `${avatar.fieldname}_${timestamp}${extension}`;  
+    const publicFilePath = path.join(
+      __dirname,
+      '..',
+      './../../public/profile',
+      uploadedFileName,
+    );
+    fs.writeFileSync(publicFilePath, avatar.buffer);
+    user.avatar = publicFilePath;
+    return await this.userModel
+      .findByIdAndUpdate(id, user, { new: true })
+      .exec();
   }
 
   async delete(id: string): Promise<User> {
@@ -178,5 +196,21 @@ export class UserRegistrationService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+  isValidFile(@UploadedFile() avatar: Express.Multer.File): boolean {
+    if (!avatar)
+      throw new HttpException(
+        'file should not be empty',
+        HttpStatus.BAD_REQUEST,
+      );
+    const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+    const maxFileSize = 5 * 1024 * 1024; // 5MB
+    const isValidExtension = allowedExtensions.includes(
+      avatar.originalname
+        .toLowerCase()
+        .substring(avatar.originalname.lastIndexOf('.')),
+    );
+    const isValidSize = avatar.size <= maxFileSize;
+    return isValidExtension && isValidSize;
   }
 }
