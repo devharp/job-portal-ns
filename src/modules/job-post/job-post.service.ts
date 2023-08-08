@@ -14,6 +14,7 @@ import { UserRegistrationService } from '../user-registration/user-registration.
 import { EncryptionService } from 'src/utilities/encryption.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { UpdateJobPostDto } from 'src/constants/dto/update-job-post.dto';
+import { Helper } from 'src/utilities/helper.service';
 @Injectable()
 export class JobPostService {
   constructor(
@@ -22,6 +23,7 @@ export class JobPostService {
     @InjectModel('JobTitle') private JobTitleModel: Model<JobTitle>,
     private userService: UserRegistrationService,
     private encryptionService: EncryptionService,
+    private helperService: Helper,
   ) {}
   async create(createJobPostDto: CreateJobPostDto, provider: string) {
     const { Title } = createJobPostDto;
@@ -104,12 +106,22 @@ export class JobPostService {
   async jobPostsHistory(
     providerId: string,
     status?: string,
+    from?: string,
+    to?: string,
     page: number = 1,
     perPage: number = 10,
   ): Promise<PaginateResult<JobPost>> {
     try {
       const { _id } = await this.userService.findById(providerId);
-      const query = status ? { provider: _id, status } : { provider: _id };
+      const query: any = status ? { provider: _id, status } : { provider: _id };
+      if (from && to) {
+        from = await this.helperService.ToYearMonthDayFormat(from);
+        to = await this.helperService.ToYearMonthDayFormat(to);
+        query.postedOn = {
+          $gte: new Date(from).toISOString().split('T')[0],
+          $lte: new Date(to).toISOString().split('T')[0],
+        };
+      }
       const options = {
         sort: { createdAt: -1 },
         page: page,
