@@ -16,20 +16,20 @@ import {
   UserDTO,
   UserProviderDTO,
   UserSeekerDTO,
-} from 'src/constants/dto/user.dto.class';
-import { USER_ROLE } from 'src/constants/role.user.enum';
+} from './../../constants/dto/user.dto.class';
+import { USER_ROLE } from './../../constants/role.user.enum';
 import {
   UserProvider,
   UserProviderSchemaClass,
-} from 'src/schema/users/provider.user.schema';
+} from './../../../src/schema/users/provider.user.schema';
 import {
   UserSeeker,
   UserSeekerSchemaClass,
-} from 'src/schema/users/seeker.user.schema';
-import { User, UserSchemaClass } from 'src/schema/users/user.schema';
-import { MailService } from 'src/utilities/mail.service';
+} from './../../../src/schema/users/seeker.user.schema';
+import { User, UserSchemaClass } from './../../../src/schema/users/user.schema';
+import { MailService } from './../../../src/utilities/mail.service';
 import * as bcrypt from 'bcrypt';
-import { EncryptionService } from 'src/utilities/encryption.service';
+import { EncryptionService } from './../../../src/utilities/encryption.service';
 import * as fs from 'fs';
 import * as path from 'path';
 @Injectable()
@@ -81,9 +81,9 @@ export class UserRegistrationService {
     if (!this.isValidFile(avatar)) {
       throw new HttpException('Invalid file.', HttpStatus.BAD_REQUEST);
     }
-    const timestamp = new Date().toISOString().replace(/[:.]/g, ''); 
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '');
     const extension = path.parse(avatar.originalname).ext;
-    const uploadedFileName = `${avatar.fieldname}_${timestamp}${extension}`;  
+    const uploadedFileName = `${avatar.fieldname}_${timestamp}${extension}`;
     const publicFilePath = path.join(
       __dirname,
       '..',
@@ -93,7 +93,7 @@ export class UserRegistrationService {
     fs.writeFileSync(publicFilePath, avatar.buffer);
     user.avatar = publicFilePath;
     return await this.userModel
-      .findByIdAndUpdate(id, user, { new: true })
+      .findByIdAndUpdate(id, user, { new: true, fields: Object.keys(user) })
       .exec();
   }
 

@@ -15,17 +15,17 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { JobPostService } from './job-post.service';
-import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
+import { JobPost } from './../../../src/schema/job-post/provider.job-post.schema';
 import { Request as Req } from 'express';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { validate } from 'class-validator';
-import { Roles } from 'src/auth/roles.decorator';
-import { RolesGuard } from 'src/auth/roles.guard';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
-import { UpdateJobPostDto } from 'src/constants/dto/update-job-post.dto';
+import { Roles } from './../../../src/auth/roles.decorator';
+import { RolesGuard } from './../../../src/auth/roles.guard';
+import { JwtAuthGuard } from './../../../src/auth/jwt-auth.guard';
+import { globalValidationPipe } from './../../../src/pipes/global-validation.pipe';
+import { UpdateJobPostDto } from './../../../src/constants/dto/update-job-post.dto';
 import { throwError } from 'rxjs';
 @UseGuards(JwtAuthGuard)
 @UseGuards(RolesGuard)

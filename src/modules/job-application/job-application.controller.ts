@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { JobApplicationService } from './job-application.service';
 import { JobApplicationDto } from '../../constants/dto/job-application.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from './../../../src/auth/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
 @Controller('job-application')

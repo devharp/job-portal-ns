@@ -2,16 +2,16 @@ import { Module } from '@nestjs/common';
 import { UserLoginController } from './user-login.controller';
 import { UserLoginService } from './user-login.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/schema/users/user.schema';
+import { User, UserSchema } from './../../../src/schema/users/user.schema';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
   UserSeeker,
   UserSeekerSchema,
-} from 'src/schema/users/seeker.user.schema';
+} from './../../../src/schema/users/seeker.user.schema';
 import {
   UserProvider,
   UserProviderSchema,
-} from 'src/schema/users/provider.user.schema';
+} from './../../../src/schema/users/provider.user.schema';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 
 @Module({

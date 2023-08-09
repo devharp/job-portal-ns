@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   JobApplication,
   JobApplicationSchema,
-} from 'src/schema/job-application/job-application.schema';
+} from './../../../src/schema/job-application/job-application.schema';
 
 @Module({
   imports: [
