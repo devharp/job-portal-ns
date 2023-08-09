@@ -11,6 +11,7 @@ import {
   HttpException,
   HttpStatus,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { UserRegistrationService } from './user-registration.service';
 import { User } from './../../../src/schema/users/user.schema';
@@ -19,6 +20,8 @@ import { UserDTO } from './../../../src/constants/dto/user.dto.class';
 import { resetPasswordDto } from './../../../src/constants/dto/mail.dto.class';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserUpdateDto } from './../../../src/constants/dto/user.update.dto';
+import { JwtAuthGuard } from './../../../src/auth/jwt-auth.guard';
+
 @Controller('user-registration')
 export class UserRegistrationController {
   constructor(
@@ -61,6 +64,7 @@ export class UserRegistrationController {
     return this.userRegistrationService.delete(id);
   }
   // update user profile details
+  @UseGuards(JwtAuthGuard)
   @Put('/update-profile/:id')
   @UseInterceptors(FileInterceptor('avatar'))
   async createUser(

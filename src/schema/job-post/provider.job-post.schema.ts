@@ -23,7 +23,10 @@ export class JobPost extends Document {
   organizationName: string;
 
   @Prop()
-  location: string;
+  state: string;
+
+  @Prop()
+  city: string;
 
   @Prop()
   jobDescription: string;

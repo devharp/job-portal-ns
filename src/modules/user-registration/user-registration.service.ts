@@ -93,7 +93,7 @@ export class UserRegistrationService {
     fs.writeFileSync(publicFilePath, avatar.buffer);
     user.avatar = publicFilePath;
     return await this.userModel
-      .findByIdAndUpdate(id, user, { new: true })
+      .findByIdAndUpdate(id, user, { new: true, fields: Object.keys(user) })
       .exec();
   }
 

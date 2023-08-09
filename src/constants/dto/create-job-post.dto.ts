@@ -31,7 +31,11 @@ export class CreateJobPostDto {
 
   @IsNotEmpty()
   @IsString()
-  location: string;
+  state: string;
+
+  @IsNotEmpty()
+  @IsString()
+  city: string;
 
   @IsOptional()
   salary: object | null;
