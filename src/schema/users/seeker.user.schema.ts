@@ -14,6 +14,9 @@ export class UserSeeker extends Document {
   @Prop()
   dob: string;
 
+  @Prop({ default: null })
+  resumeUrl: string;
+
   @Prop()
   isExperienced: boolean;
 }
