@@ -3,18 +3,21 @@ import { JobPostService } from './job-post.service';
 import { JobPostController } from './job-post.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { User, UserSchema } from './../../../src/schema/users/user.schema';
 import {
   JobPost,
   JobPostSchema,
-} from './../../../src/schema/job-post/provider.job-post.schema';
+} from 'src/schema/job-post/provider.job-post.schema';
 import {
   JobCategorySchema,
   JobCategory,
-} from './../../../src/schema/job-post/job.category.schema';
-import { JobTitle, JobTitleSchema } from './../../../src/schema/job-post/job.title.schema';
+} from 'src/schema/job-post/job.category.schema';
+import {
+  JobTitle,
+  JobTitleSchema,
+} from 'src/schema/job-post/job.title.schema';
 import { UserRegistrationModule } from '../user-registration/user-registration.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { User, UserSchema } from 'src/schema/users/user.schema';
 @Module({
   imports: [
     MongooseModule.forFeature([

@@ -14,13 +14,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserRegistrationService } from './user-registration.service';
-import { User } from './../../../src/schema/users/user.schema';
-import { globalValidationPipe } from './../../../src/pipes/global-validation.pipe';
-import { UserDTO } from './../../../src/constants/dto/user.dto.class';
-import { resetPasswordDto } from './../../../src/constants/dto/mail.dto.class';
+import { User } from 'src/schema/users/user.schema';
+import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
+import { UserDTO } from 'src/constants/dto/user.dto.class';
+import { resetPasswordDto } from 'src/constants/dto/mail.dto.class';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UserUpdateDto } from './../../../src/constants/dto/user.update.dto';
-import { JwtAuthGuard } from './../../../src/auth/jwt-auth.guard';
+import { UserUpdateDto } from 'src/constants/dto/user.update.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('user-registration')
 export class UserRegistrationController {

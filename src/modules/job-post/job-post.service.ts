@@ -6,15 +6,15 @@ import {
 } from '@nestjs/common';
 import { CreateJobPostDto } from '../../constants/dto/create-job-post.dto';
 import { User, UserSchemaClass } from 'src/schema/users/user.schema';
-import { JobPost } from './../../../src/schema/job-post/provider.job-post.schema';
+import { JobPost } from 'src/schema/job-post/provider.job-post.schema';
 import { Model, PaginateResult, PaginateModel } from 'mongoose';
 import { JobCategory } from 'src/schema/job-post/job.category.schema';
 import { JobTitle } from 'src/schema/job-post/job.title.schema';
 import { UserRegistrationService } from '../user-registration/user-registration.service';
-import { EncryptionService } from './../../../src/utilities/encryption.service';
+import { EncryptionService } from 'src/utilities/encryption.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { UpdateJobPostDto } from 'src/constants/dto/update-job-post.dto';
-import { Helper } from './../../../src/utilities/helper.service';
+import { Helper } from 'src/utilities/helper.service';
 @Injectable()
 export class JobPostService {
   constructor(
