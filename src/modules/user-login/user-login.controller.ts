@@ -7,11 +7,11 @@ import {
   HttpStatus,
   Get,
 } from '@nestjs/common';
-import { LocalAuthGuard } from './../../../src/auth/local-auth.guard';
+import { LocalAuthGuard } from 'src/auth/local-auth.guard';
 import { Request as Req } from 'express';
-import { JwtAuthGuard } from './../../../src/auth/jwt-auth.guard';
-import { RolesGuard } from './../../../src/auth/roles.guard';
-import { Roles } from './../../../src/auth/roles.decorator';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
 
 @UseGuards(RolesGuard)
 @Controller('user-login')

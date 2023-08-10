@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { globalValidationPipe } from './pipes/global-validation.pipe';
 import { Body, ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { logger: false });
+  const app = await NestFactory.create(AppModule);
   app.enableCors();
   // app.useGlobalPipes(globalValidationPipe);
   // console.log('nest application started succefully')

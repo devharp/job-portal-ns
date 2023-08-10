@@ -18,20 +18,20 @@ import {
   UserSeekerDTO,
 } from './../../constants/dto/user.dto.class';
 import { USER_ROLE } from './../../constants/role.user.enum';
+import { User, UserSchemaClass } from 'src/schema/users/user.schema';
+import { MailService } from 'src/utilities/mail.service';
+import * as bcrypt from 'bcrypt';
+import { EncryptionService } from 'src/utilities/encryption.service';
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   UserProvider,
   UserProviderSchemaClass,
-} from './../../../src/schema/users/provider.user.schema';
+} from 'src/schema/users/provider.user.schema';
 import {
   UserSeeker,
   UserSeekerSchemaClass,
-} from './../../../src/schema/users/seeker.user.schema';
-import { User, UserSchemaClass } from './../../../src/schema/users/user.schema';
-import { MailService } from './../../../src/utilities/mail.service';
-import * as bcrypt from 'bcrypt';
-import { EncryptionService } from './../../../src/utilities/encryption.service';
-import * as fs from 'fs';
-import * as path from 'path';
+} from 'src/schema/users/seeker.user.schema';
 @Injectable()
 export class UserRegistrationService {
   constructor(
