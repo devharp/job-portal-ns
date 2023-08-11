@@ -12,6 +12,7 @@ import {
   HttpStatus,
   UseInterceptors,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { UserRegistrationService } from './user-registration.service';
 import { User } from 'src/schema/users/user.schema';
@@ -21,6 +22,10 @@ import { resetPasswordDto } from 'src/constants/dto/mail.dto.class';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserUpdateDto } from 'src/constants/dto/user.update.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import {
+  qualifications,
+  streams,
+} from 'src/constants/static/qualification-streams';
 
 @Controller('user-registration')
 export class UserRegistrationController {
@@ -75,5 +80,14 @@ export class UserRegistrationController {
     const user = await this.userRegistrationService.update(id, body, avatar);
     if (!user) throw new HttpException('id not found', HttpStatus.BAD_REQUEST);
     return { message: ' user profile updated successfully', user: user };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('suggestions/dropdown')
+  async getSuggestions(@Query('suggest') suggest: string) {
+    if (suggest !== 'qualification' && suggest !== 'streams') {
+      throw new HttpException('Invalid  parameter', HttpStatus.BAD_REQUEST);
+    }
+    return suggest === 'qualification' ? qualifications : streams;
   }
 }
