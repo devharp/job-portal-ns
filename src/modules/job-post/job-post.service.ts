@@ -132,7 +132,7 @@ export class JobPostService {
         : Promise.reject(
             new HttpException(
               'No job posts found with the specified status',
-              HttpStatus.NOT_FOUND,
+              HttpStatus.CONFLICT,
             ),
           );
     } catch (error) {

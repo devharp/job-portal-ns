@@ -32,6 +32,7 @@ import {
   UserSeeker,
   UserSeekerSchemaClass,
 } from 'src/schema/users/seeker.user.schema';
+import axios from 'axios';
 @Injectable()
 export class UserRegistrationService {
   constructor(
@@ -212,5 +213,24 @@ export class UserRegistrationService {
     );
     const isValidSize = avatar.size <= maxFileSize;
     return isValidExtension && isValidSize;
+  }
+
+  async suggest(name?: string): Promise<string[]> {
+    try {
+      const response = await axios.get(
+        `${this.configService.get('GOV_PATH')}?api-key=${this.configService.get(
+          'GOV_API_KEY',
+        )}&format=json&limit=400`,
+      );
+      const partialMatch = await this.encryptionService.regexAppplication(name);
+      return await response.data.records
+        .filter((record) => partialMatch.test(record.name_of_university))
+        .map((record) => record.name_of_university);
+    } catch (error) {
+      throw new HttpException(
+        'Something Went Wrong',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
