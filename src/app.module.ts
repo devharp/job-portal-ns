@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common';
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -8,6 +13,8 @@ import { UserLoginModule } from './modules/user-login/user-login.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth/auth.service';
 import { User, UserSchema } from './schema/users/user.schema';
+import * as multer from 'multer';
+
 import {
   UserProvider,
   UserProviderSchema,
@@ -23,6 +30,7 @@ import { JobPostModule } from './modules/job-post/job-post.module';
 import { JobApplicationModule } from './modules/job-application/job-application.module';
 import { LocationModule } from './modules/location/location.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { join } from 'path';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.local.env' }),
@@ -60,9 +68,9 @@ import { MulterModule } from '@nestjs/platform-express';
         schema: UserProviderSchema,
       },
     ]),
-    // MulterModule.register({
-    //   dest: './public', // Destination directory for uploaded files
-    // }),
+    MulterModule.register({
+      dest: join(__dirname, '..', 'public'),
+    }),
 
     UserRegistrationModule,
     UserLoginModule,
@@ -74,3 +82,13 @@ import { MulterModule } from '@nestjs/platform-express';
   providers: [AppService, AuthService, LocalStrategy, JwtStrategy],
 })
 export class AppModule {}
+//   implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer
+//       .apply(multer().array('files')) // 'files' should match the name attribute of your file input
+//       .forRoutes({
+//         path: 'user-registration/update-profile/:id',
+//         method: RequestMethod.ALL,
+//       }); // Adjust the route as needed
+//   }
+// }

@@ -95,6 +95,7 @@ export class JobPostService {
       'category',
       categoryName,
     );
+    console.log('find category----------------->', categoryId);
     if (!categoryId) return [];
     return (
       await this.JobTitleModel.find({

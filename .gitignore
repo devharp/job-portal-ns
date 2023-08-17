@@ -40,3 +40,4 @@ lerna-debug.log*
 # Ignore public and profile folders
 /public/
 /profile/
+/resumes/

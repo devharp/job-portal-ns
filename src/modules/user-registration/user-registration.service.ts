@@ -32,6 +32,7 @@ import {
   UserSeeker,
   UserSeekerSchemaClass,
 } from 'src/schema/users/seeker.user.schema';
+import { mongoose } from '@typegoose/typegoose';
 @Injectable()
 export class UserRegistrationService {
   constructor(
@@ -77,24 +78,42 @@ export class UserRegistrationService {
     return this.userModel.findById(id).exec();
   }
 
-  async update(id: string, user: any, avatar: any): Promise<User> {
-    if (!this.isValidFile(avatar)) {
+  async update(id: string, userData: any, files: any): Promise<User> {
+    if (!this.isValidFile(files)) {
       throw new HttpException('Invalid file.', HttpStatus.BAD_REQUEST);
     }
     const timestamp = new Date().toISOString().replace(/[:.]/g, '');
-    const extension = path.parse(avatar.originalname).ext;
-    const uploadedFileName = `${avatar.fieldname}_${timestamp}${extension}`;
-    const publicFilePath = path.join(
+    const extension = path.parse(files.avatar[0].originalname).ext;
+    const uploadedFileName = `${files.avatar[0].fieldname}_${timestamp}${extension}`;
+    const resumeExtension = path.parse(files.resume[0].originalname).ext;
+    const resumeFile = `${files.resume[0].fieldname}_${timestamp}${resumeExtension}`;
+    const avatarFilePath = path.join(
       __dirname,
       '..',
       './../../public/profile',
       uploadedFileName,
     );
-    fs.writeFileSync(publicFilePath, avatar.buffer);
-    user.avatar = publicFilePath;
-    return await this.userModel
-      .findByIdAndUpdate(id, user, { new: true, fields: Object.keys(user) })
+    const resumeFilePath = path.join(
+      __dirname,
+      '..',
+      './../../public/resumes',
+      resumeFile,
+    );
+    fs.writeFileSync(avatarFilePath, files.avatar[0].buffer);
+    userData.avatar = avatarFilePath;
+    fs.writeFileSync(resumeFilePath, files.resume[0].buffer);
+    userData.resumeUrl = resumeFilePath;
+    const { firstName, lastName, email, mobileNo, avatar } = userData;
+    const userProfileDetails = { firstName, lastName, email, mobileNo, avatar };
+    let userProfile = await this.userModel
+      .findByIdAndUpdate(id, userProfileDetails, { new: true })
       .exec();
+    const objectId = new mongoose.Types.ObjectId(id);
+    return await this.userSeekerModel.findOneAndUpdate(
+      { user: objectId },
+      userData,
+      { new: true },
+    );
   }
 
   async delete(id: string): Promise<User> {
@@ -197,20 +216,37 @@ export class UserRegistrationService {
       );
     }
   }
-  isValidFile(@UploadedFile() avatar: Express.Multer.File): boolean {
-    if (!avatar)
+  isValidFile(files: any): boolean {
+    if (!files)
       throw new HttpException(
         'file should not be empty',
         HttpStatus.BAD_REQUEST,
       );
-    const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+
+    const allowedImageExtensions = ['.jpg', '.jpeg', '.png'];
+    const allowedResumeExtensions = ['.pdf'];
     const maxFileSize = 5 * 1024 * 1024; // 5MB
-    const isValidExtension = allowedExtensions.includes(
-      avatar.originalname
-        .toLowerCase()
-        .substring(avatar.originalname.lastIndexOf('.')),
+    const maxPdfSize = 20 * 1024 * 1024; // 20MB for PDF
+
+    const avatarFile = files.avatar[0];
+    const resumeFile = files.resume[0];
+
+    // Validate avatar as an image
+    const avatarExtension = avatarFile.originalname
+      .toLowerCase()
+      .substring(avatarFile.originalname.lastIndexOf('.'));
+    const isAvatarImage = allowedImageExtensions.includes(avatarExtension);
+    const isAvatarValidSize = avatarFile.size <= maxFileSize;
+
+    // Validate resume as a PDF
+    const resumeExtension = resumeFile.originalname
+      .toLowerCase()
+      .substring(resumeFile.originalname.lastIndexOf('.'));
+    const isResumePDF = allowedResumeExtensions.includes(resumeExtension);
+    const isResumeValidSize = resumeFile.size <= maxPdfSize;
+
+    return (
+      isAvatarImage && isAvatarValidSize && isResumePDF && isResumeValidSize
     );
-    const isValidSize = avatar.size <= maxFileSize;
-    return isValidExtension && isValidSize;
   }
 }
