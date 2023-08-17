@@ -17,7 +17,7 @@ import {
   UserProvider,
   UserProviderSchema,
 } from 'src/schema/users/provider.user.schema';
-
+import { HttpModule } from '@nestjs/axios';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -56,6 +56,7 @@ import {
       },
       inject: [ConfigService],
     }),
+    HttpModule,
   ],
   controllers: [UserRegistrationController],
   providers: [UserRegistrationService, MailService, EncryptionService, Helper],

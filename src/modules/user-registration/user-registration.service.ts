@@ -32,7 +32,7 @@ import {
   UserSeeker,
   UserSeekerSchemaClass,
 } from 'src/schema/users/seeker.user.schema';
-import axios from 'axios';
+import { HttpService } from '@nestjs/axios';
 @Injectable()
 export class UserRegistrationService {
   constructor(
@@ -43,6 +43,7 @@ export class UserRegistrationService {
     private mailService: MailService,
     private configService: ConfigService,
     private encryptionService: EncryptionService,
+    private readonly httpService: HttpService,
   ) {}
 
   async create(user: UserDTO): Promise<any> {
@@ -217,11 +218,15 @@ export class UserRegistrationService {
 
   async suggest(name?: string): Promise<string[]> {
     try {
-      const response = await axios.get(
-        `${this.configService.get('GOV_PATH')}?api-key=${this.configService.get(
-          'GOV_API_KEY',
-        )}&format=json&limit=400`,
-      );
+      const response = await this.httpService
+        .get(
+          `${this.configService.get(
+            'GOV_PATH',
+          )}?api-key=${this.configService.get(
+            'GOV_API_KEY',
+          )}&format=json&limit=400`,
+        )
+        .toPromise();
       const partialMatch = await this.encryptionService.regexAppplication(name);
       return await response.data.records
         .filter((record) => partialMatch.test(record.name_of_university))
