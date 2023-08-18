@@ -19,10 +19,7 @@ import { User } from 'src/schema/users/user.schema';
 import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
 import { UserDTO } from 'src/constants/dto/user.dto.class';
 import { resetPasswordDto } from 'src/constants/dto/mail.dto.class';
-import {
-  FileFieldsInterceptor,
-  FilesInterceptor,
-} from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UserUpdateDto } from 'src/constants/dto/user.update.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import {
