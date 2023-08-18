@@ -16,6 +16,39 @@ export class UserSeeker extends Document {
 
   @Prop()
   isExperienced: boolean;
+
+  @Prop()
+  gender: string;
+
+  @Prop()
+  address: string;
+
+  @Prop()
+  availabilityToJoin: string;
+
+  @Prop()
+  profileSummary: string;
+
+  @Prop()
+  '10th': string;
+
+  @Prop()
+  '12th': string;
+
+  @Prop()
+  highestQualification: string;
+
+  @Prop()
+  percentage: String;
+
+  @Prop()
+  stream: string;
+
+  @Prop()
+  university: string;
+
+  @Prop()
+  resumeUrl: string;
 }
 
 @Exclude()
