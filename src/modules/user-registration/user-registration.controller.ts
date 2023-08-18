@@ -13,13 +13,15 @@ import {
   UseInterceptors,
   UseGuards,
   Query,
+  UploadedFiles,
 } from '@nestjs/common';
 import { UserRegistrationService } from './user-registration.service';
 import { User } from 'src/schema/users/user.schema';
 import { globalValidationPipe } from 'src/pipes/global-validation.pipe';
 import { UserDTO } from 'src/constants/dto/user.dto.class';
 import { resetPasswordDto } from 'src/constants/dto/mail.dto.class';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UserUpdateDto } from 'src/constants/dto/user.update.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import {
@@ -71,13 +73,19 @@ export class UserRegistrationController {
   // update user profile details
   @UseGuards(JwtAuthGuard)
   @Put('/update-profile/:id')
-  @UseInterceptors(FileInterceptor('avatar'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'avatar', maxCount: 1 },
+      { name: 'resume', maxCount: 1 },
+    ]),
+  )
   async createUser(
     @Param('id') id: string,
     @Body(globalValidationPipe) body: UserUpdateDto,
-    @UploadedFile() avatar: Express.Multer.File,
+    @UploadedFiles()
+    files: { avatar: Express.Multer.File[]; resume: Express.Multer.File[] },
   ) {
-    const user = await this.userRegistrationService.update(id, body, avatar);
+    const user = await this.userRegistrationService.update(id, body, files);
     if (!user) throw new HttpException('id not found', HttpStatus.BAD_REQUEST);
     return { message: ' user profile updated successfully', user: user };
   }
