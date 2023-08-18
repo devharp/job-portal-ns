@@ -35,6 +35,9 @@ import {
 import { mongoose } from '@typegoose/typegoose';
 @Injectable()
 export class UserRegistrationService {
+  suggest(name: string) {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(UserSeeker.name) private userSeekerModel: Model<UserSeeker>,

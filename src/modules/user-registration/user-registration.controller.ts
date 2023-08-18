@@ -89,10 +89,21 @@ export class UserRegistrationController {
   }
   @UseGuards(JwtAuthGuard)
   @Get('suggestions/dropdown')
-  async getSuggestions(@Query('suggest') suggest: string) {
-    if (suggest !== 'qualification' && suggest !== 'streams') {
+  async getSuggestions(
+    @Query('suggest') suggest: string,
+    @Query('name') name?: string,
+  ) {
+    if (
+      suggest !== 'qualification' &&
+      suggest !== 'streams' &&
+      suggest !== 'university'
+    ) {
       throw new HttpException('Invalid  parameter', HttpStatus.BAD_REQUEST);
     }
-    return suggest === 'qualification' ? qualifications : streams;
+    return suggest !== 'university'
+      ? suggest === 'qualification'
+        ? qualifications
+        : streams
+      : this.userRegistrationService.suggest(name);
   }
 }

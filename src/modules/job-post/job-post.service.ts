@@ -116,8 +116,6 @@ export class JobPostService {
       const { _id } = await this.userService.findById(providerId);
       const query: any = status ? { provider: _id, status } : { provider: _id };
       if (from && to) {
-        from = await this.helperService.ToYearMonthDayFormat(from);
-        to = await this.helperService.ToYearMonthDayFormat(to);
         query.postedOn = {
           $gte: new Date(from).toISOString().split('T')[0],
           $lte: new Date(to).toISOString().split('T')[0],
@@ -135,7 +133,7 @@ export class JobPostService {
         : Promise.reject(
             new HttpException(
               'No job posts found with the specified status',
-              HttpStatus.NOT_FOUND,
+              HttpStatus.CONFLICT,
             ),
           );
     } catch (error) {
