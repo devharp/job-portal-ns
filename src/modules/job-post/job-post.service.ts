@@ -51,18 +51,25 @@ export class JobPostService {
     updateJobPostDto: UpdateJobPostDto,
   ): Promise<JobPost> {
     try {
-      const { title } = updateJobPostDto;
-      const Title = await this.findIdOfCategoryOrTitle('title', title);
-      const result = await this.JobPostModel.findByIdAndUpdate(
-        id,
-        {
+      const { title, status } = updateJobPostDto;
+      let updateData = {};
+      if (title) {
+        const Title = await this.findIdOfCategoryOrTitle('title', title);
+        updateData = {
           ...updateJobPostDto,
           jobTitle: Title[0],
-        },
-        {
-          new: true,
-        },
-      ).exec();
+        };
+      } else if (status) {
+        updateData = {
+          status: status,
+        };
+      } else {
+        throw new Error('No update data provided.');
+      }
+
+      const result = await this.JobPostModel.findByIdAndUpdate(id, updateData, {
+        new: true,
+      }).exec();
       return result;
     } catch (error) {
       return error.message;
