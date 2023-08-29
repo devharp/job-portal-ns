@@ -11,7 +11,11 @@ export class UpdateJobPostDto {
 
   @IsOptional()
   @IsString()
-  location: string;
+  city: string;
+
+  @IsOptional()
+  @IsString()
+  state: string;
 
   @IsOptional()
   salary: object | null;
