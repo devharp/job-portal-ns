@@ -42,10 +42,22 @@ export class JobPostService {
   }
 
   async findById(id: number): Promise<JobPost> {
-    const result = await this.JobPostModel.findById(id).exec();
-    return result;
+    try {
+      const result = await this.JobPostModel.findById(id)
+        .populate({
+          path: 'jobTitle',
+          populate: {
+            path: 'category',
+            model: 'JobCategory',
+          },
+        })
+        .exec();
+      return result;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
-
   async update(
     id: string,
     updateJobPostDto: UpdateJobPostDto,
