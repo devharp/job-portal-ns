@@ -37,7 +37,15 @@ export class JobPostService {
     return postData;
   }
   async findAll(): Promise<JobPost[]> {
-    const result = await this.JobPostModel.find().exec();
+    const result = await this.JobPostModel.find()
+      .populate({
+        path: 'jobTitle',
+        populate: {
+          path: 'category',
+          model: 'JobCategory',
+        },
+      })
+      .exec();
     return result;
   }
 
@@ -62,7 +70,6 @@ export class JobPostService {
     id: string,
     updateJobPostDto: UpdateJobPostDto,
   ): Promise<JobPost> {
-
     try {
       const { title, status } = updateJobPostDto;
       let updateData = {};
