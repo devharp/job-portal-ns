@@ -62,6 +62,7 @@ export class JobPostService {
     id: string,
     updateJobPostDto: UpdateJobPostDto,
   ): Promise<JobPost> {
+
     try {
       const { title, status } = updateJobPostDto;
       let updateData = {};

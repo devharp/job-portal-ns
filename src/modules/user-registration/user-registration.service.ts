@@ -6,6 +6,7 @@ import {
   InternalServerErrorException,
   ConflictException,
   UploadedFile,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
@@ -76,7 +77,11 @@ export class UserRegistrationService {
   }
 
   async findById(id: string): Promise<User> {
-    return this.userModel.findById(id).exec();
+    const result = await this.userModel.findById(id).exec();
+    if (!result) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return result;
   }
 
   async update(id: string, userData: any, files: any): Promise<User> {
