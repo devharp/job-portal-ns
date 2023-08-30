@@ -61,6 +61,7 @@ export class UserRegistrationController {
     return this.userRegistrationService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string): Promise<User> {
     return this.userRegistrationService.findById(id);
