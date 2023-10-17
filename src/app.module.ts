@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -19,17 +19,33 @@ import {
 import { LocalStrategy } from './auth/local.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './auth/jwt.strategy';
+import { JobPostModule } from './modules/job-post/job-post.module';
+import { JobApplicationModule } from './modules/job-application/job-application.module';
 import { LocationModule } from './modules/location/location.module';
-
+import { MulterModule } from '@nestjs/platform-express';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.local.env' }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secret: 'your_secret_key_here',
-      signOptions: { expiresIn: '1d' }, // Token expiration time
+    JwtModule.registerAsync({
+      // secret: 'your_secret_key_here',
+      // signOptions: { expiresIn: '1d' }, // Token expiration time (optional)
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get('JWT_KEY'),
+        signOptions: {
+          expiresIn: configService.get<string>('JWT_EXPIRE') + 'd',
+        },
+      }),
+      inject: [ConfigService],
     }),
-    MongooseModule.forRoot('mongodb://localhost/job-portal'),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('CON_URI'),
+      }),
+      inject: [ConfigService],
+    }),
     MongooseModule.forFeature([
       {
         name: User.name,
@@ -44,8 +60,14 @@ import { LocationModule } from './modules/location/location.module';
         schema: UserProviderSchema,
       },
     ]),
+    // MulterModule.register({
+    //   dest: './public', // Destination directory for uploaded files
+    // }),
+
     UserRegistrationModule,
     UserLoginModule,
+    JobPostModule,
+    JobApplicationModule,
     LocationModule,
   ],
   controllers: [AppController],

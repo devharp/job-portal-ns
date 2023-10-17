@@ -5,6 +5,10 @@ import { UserRegistrationController } from './user-registration.controller';
 import { UserRegistrationService } from './user-registration.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schema/users/user.schema';
+
+import { MailService } from 'src/utilities/mail.service';
+import { EncryptionService } from 'src/utilities/encryption.service';
+import { Helper } from 'src/utilities/helper.service';
 import {
   UserSeeker,
   UserSeekerSchema,
@@ -13,9 +17,8 @@ import {
   UserProvider,
   UserProviderSchema,
 } from 'src/schema/users/provider.user.schema';
-import { MailService } from 'src/utilities/mail.service';
-import { EncryptionService } from 'src/utilities/encryption.service';
-
+import { HttpModule } from '@nestjs/axios';
+import { TwilioService } from 'src/utilities/sms.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -34,7 +37,7 @@ import { EncryptionService } from 'src/utilities/encryption.service';
     ]),
 
     MailerModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule , ],
       useFactory: async (configService: ConfigService) => {
         const mailerConfig = {
           transport: {
@@ -54,9 +57,16 @@ import { EncryptionService } from 'src/utilities/encryption.service';
       },
       inject: [ConfigService],
     }),
+    HttpModule,
   ],
   controllers: [UserRegistrationController],
-  providers: [UserRegistrationService, MailService, EncryptionService],
-  exports: [EncryptionService, MailService],
+  providers: [
+    UserRegistrationService,
+    MailService,
+    EncryptionService,
+    Helper,
+    TwilioService,
+  ],
+  exports: [EncryptionService, MailService, UserRegistrationService, Helper],
 })
 export class UserRegistrationModule {}

@@ -31,12 +31,11 @@ class BaseUserDTO {
 
   @IsNotEmpty()
   @IsString()
-  dob: string;
-
-  @IsNotEmpty()
-  @IsString()
   @IsIn([USER_ROLE.SEEKER, USER_ROLE.PROVIDER])
   role: string;
+
+  @IsOptional()
+  token: object;
 }
 
 export class UserDTO extends BaseUserDTO {
@@ -47,6 +46,10 @@ export class UserDTO extends BaseUserDTO {
   @IsOptional()
   @IsString()
   organization?: string;
+
+  @IsOptional()
+  @IsString()
+  dob?: string;
 }
 
 export class UserSeekerDTO extends BaseUserDTO {
@@ -54,6 +57,10 @@ export class UserSeekerDTO extends BaseUserDTO {
   @IsString()
   @IsIn([USER_ROLE.SEEKER])
   role: string;
+
+  @IsNotEmpty()
+  @IsString()
+  dob: string;
 
   @IsOptional()
   @IsEmpty({ message: 'organization is not allowed' })

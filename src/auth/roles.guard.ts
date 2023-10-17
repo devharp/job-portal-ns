@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-
+import * as jwt from 'jsonwebtoken';
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(
@@ -19,7 +19,6 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-
     if (!allowedRoles) {
       // No roles specified for this route, allow access by default
       return true;
@@ -27,12 +26,25 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const authorizationHeader = request.headers.authorization;
-
     if (!authorizationHeader)
       throw new UnauthorizedException('Authorization header not found');
 
-    const { role } = this.jwtService.verify(authorizationHeader.split(' ')[1]);
-
-    return allowedRoles.includes(role);
+    try {
+      const { role } = this.jwtService.verify(
+        authorizationHeader.split(' ')[1],
+      );
+      return allowedRoles.includes(role);
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw new UnauthorizedException(
+          'Token has expired. Please log in again.',
+        );
+      } else if (error instanceof jwt.JsonWebTokenError) {
+        throw new UnauthorizedException(
+          'Invalid token. Please provide a valid token.',
+        );
+      }
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }
