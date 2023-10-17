@@ -68,4 +68,8 @@ export class UserUpdateDto {
   @IsOptional()
   @IsString()
   resume: string;
+
+  @IsOptional()
+  @IsString()
+  organization: string;
 }
