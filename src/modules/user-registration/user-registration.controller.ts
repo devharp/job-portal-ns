@@ -89,8 +89,9 @@ export class UserRegistrationController {
     @UploadedFiles()
     files: { avatar?: Express.Multer.File[]; resume?: Express.Multer.File[] },
   ) {
+    const { id, role } = req.user;
     const user = await this.userRegistrationService.update(
-      req.user.id,
+      { id, role },
       body,
       files,
     );

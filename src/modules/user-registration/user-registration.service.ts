@@ -86,50 +86,66 @@ export class UserRegistrationService {
     return result;
   }
 
-  async update(updateTo: string, userData: any, files?: any): Promise<User> {
-    if (files && files.avatar !== undefined) {
-      await this.helperService.validateUploadedFile(files.avatar[0], 'avatar');
-      const updatedAvatar = await this.helperService.renameUploadedFile(
-        files,
-        updateTo,
-      );
-      const avatarFilePath = path.join(
-        __dirname,
-        '..',
-        './../../public/profiles',
-        updatedAvatar,
-      );
-      fs.writeFileSync(avatarFilePath, files.avatar[0].buffer);
-      userData.avatar = avatarFilePath;
+  async update(updateTo: any, userData: any, files?: any): Promise<User> {
+    try {
+      if (files && files.avatar !== undefined) {
+        await this.helperService.validateUploadedFile(
+          files.avatar[0],
+          'avatar',
+        );
+        const updatedAvatar = await this.helperService.renameUploadedFile(
+          files,
+          updateTo.id,
+        );
+        const avatarFilePath = path.join(
+          __dirname,
+          '..',
+          './../../public/profiles',
+          updatedAvatar,
+        );
+        fs.writeFileSync(avatarFilePath, files.avatar[0].buffer);
+        userData.avatar = avatarFilePath;
+      }
+      if (files && files.resume !== undefined) {
+        await this.helperService.validateUploadedFile(
+          files.resume[0],
+          'resume',
+        );
+        const updatedResume = await this.helperService.renameUploadedFile(
+          files,
+          updateTo.id,
+        );
+        const resumeFilePath = path.join(
+          __dirname,
+          '..',
+          './../../public/resumes',
+          updatedResume,
+        );
+        fs.writeFileSync(resumeFilePath, files.resume[0].buffer);
+        userData.resume = resumeFilePath;
+      }
+      await this.userModel
+        .findByIdAndUpdate(updateTo.id, userData, { new: true })
+        .exec();
+      const objectId = new mongoose.Types.ObjectId(updateTo.id);
+      return updateTo.role === 'provider'
+        ? await this.userProviderModel.findOneAndUpdate(
+            { user: objectId },
+            userData,
+            { new: true },
+          )
+        : await this.userSeekerModel.findOneAndUpdate(
+            { user: objectId },
+            userData,
+            { new: true },
+          );
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ConflictException('Email or phone number already exists');
+      } else {
+        throw new InternalServerErrorException(error.response);
+      }
     }
-    if (files && files.resume !== undefined) {
-      await this.helperService.validateUploadedFile(files.resume[0], 'resume');
-
-      const updatedResume = await this.helperService.renameUploadedFile(
-        files,
-        updateTo,
-      );
-      const resumeFilePath = path.join(
-        __dirname,
-        '..',
-        './../../public/resumes',
-        updatedResume,
-      );
-      fs.writeFileSync(resumeFilePath, files.resume[0].buffer);
-      userData.resume = resumeFilePath;
-    }
-
-    // const { firstName, lastName, email, mobileNo, avatar } = userData;
-    // const userProfileDetails = { firstName, lastName, email, mobileNo, avatar };
-    await this.userModel
-      .findByIdAndUpdate(updateTo, userData, { new: true })
-      .exec();
-    const objectId = new mongoose.Types.ObjectId(updateTo);
-    return await this.userSeekerModel.findOneAndUpdate(
-      { user: objectId },
-      userData,
-      { new: true },
-    );
   }
 
   async delete(id: string): Promise<User> {
@@ -230,50 +246,6 @@ export class UserRegistrationService {
         'An error occurred while updating password',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    }
-  }
-  isValidFile(files: any): boolean {
-    if (!files)
-      throw new HttpException(
-        'file should not be empty',
-        HttpStatus.BAD_REQUEST,
-      );
-
-    const allowedImageExtensions = ['.jpg', '.jpeg', '.png'];
-    const allowedResumeExtensions = ['.pdf'];
-    const maxFileSize = 5 * 1024 * 1024; // 5MB
-    const maxPdfSize = 20 * 1024 * 1024; // 20MB for PDF
-
-    let isAvatarImage;
-    let isAvatarValidSize;
-    let isResumePDF;
-    let isResumeValidSize;
-
-    // Validate avatar as an image
-    if (files.avatar[0]) {
-      console.log('vatar');
-
-      const avatarFile = files.avatar[0];
-
-      const avatarExtension = avatarFile.originalname
-        .toLowerCase()
-        .substring(avatarFile.originalname.lastIndexOf('.'));
-      isAvatarImage = allowedImageExtensions.includes(avatarExtension);
-      isAvatarValidSize = avatarFile.size <= maxFileSize;
-      return isAvatarImage && isAvatarValidSize;
-    }
-    console.log('================', files.resume);
-
-    if (files.resume !== undefined) {
-      console.log('resume');
-      const resumeFile = files.resume[0];
-
-      const resumeExtension = resumeFile.originalname
-        .toLowerCase()
-        .substring(resumeFile.originalname.lastIndexOf('.'));
-      isResumePDF = allowedResumeExtensions.includes(resumeExtension);
-      isResumeValidSize = resumeFile.size <= maxPdfSize;
-      return isResumePDF && isResumeValidSize;
     }
   }
 
