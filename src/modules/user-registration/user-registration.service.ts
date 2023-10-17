@@ -34,6 +34,7 @@ import {
   UserSeekerSchemaClass,
 } from 'src/schema/users/seeker.user.schema';
 import { HttpService } from '@nestjs/axios';
+import { Helper } from 'src/utilities/helper.service';
 @Injectable()
 export class UserRegistrationService {
   constructor(
@@ -45,6 +46,7 @@ export class UserRegistrationService {
     private configService: ConfigService,
     private encryptionService: EncryptionService,
     private readonly httpService: HttpService,
+    private helperService: Helper,
   ) {}
 
   async create(user: UserDTO): Promise<any> {
@@ -84,37 +86,45 @@ export class UserRegistrationService {
     return result;
   }
 
-  async update(id: string, userData: any, files: any): Promise<User> {
-    if (!this.isValidFile(files)) {
-      throw new HttpException('Invalid file.', HttpStatus.BAD_REQUEST);
+  async update(updateTo: string, userData: any, files?: any): Promise<User> {
+    if (files && files.avatar !== undefined) {
+      await this.helperService.validateUploadedFile(files.avatar[0], 'avatar');
+      const updatedAvatar = await this.helperService.renameUploadedFile(
+        files,
+        updateTo,
+      );
+      const avatarFilePath = path.join(
+        __dirname,
+        '..',
+        './../../public/profiles',
+        updatedAvatar,
+      );
+      fs.writeFileSync(avatarFilePath, files.avatar[0].buffer);
+      userData.avatar = avatarFilePath;
     }
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '');
-    const extension = path.parse(files.avatar[0].originalname).ext;
-    const uploadedFileName = `${files.avatar[0].fieldname}_${timestamp}${extension}`;
-    const resumeExtension = path.parse(files.resume[0].originalname).ext;
-    const resumeFile = `${files.resume[0].fieldname}_${timestamp}${resumeExtension}`;
-    const avatarFilePath = path.join(
-      __dirname,
-      '..',
-      './../../public/profiles',
-      uploadedFileName,
-    );
-    const resumeFilePath = path.join(
-      __dirname,
-      '..',
-      './../../public/resumes',
-      resumeFile,
-    );
-    fs.writeFileSync(avatarFilePath, files.avatar[0].buffer);
-    userData.avatar = avatarFilePath;
-    fs.writeFileSync(resumeFilePath, files.resume[0].buffer);
-    userData.resumeUrl = resumeFilePath;
-    const { firstName, lastName, email, mobileNo, avatar } = userData;
-    const userProfileDetails = { firstName, lastName, email, mobileNo, avatar };
-    let userProfile = await this.userModel
-      .findByIdAndUpdate(id, userProfileDetails, { new: true })
+    if (files && files.resume !== undefined) {
+      await this.helperService.validateUploadedFile(files.resume[0], 'resume');
+
+      const updatedResume = await this.helperService.renameUploadedFile(
+        files,
+        updateTo,
+      );
+      const resumeFilePath = path.join(
+        __dirname,
+        '..',
+        './../../public/resumes',
+        updatedResume,
+      );
+      fs.writeFileSync(resumeFilePath, files.resume[0].buffer);
+      userData.resume = resumeFilePath;
+    }
+
+    // const { firstName, lastName, email, mobileNo, avatar } = userData;
+    // const userProfileDetails = { firstName, lastName, email, mobileNo, avatar };
+    await this.userModel
+      .findByIdAndUpdate(updateTo, userData, { new: true })
       .exec();
-    const objectId = new mongoose.Types.ObjectId(id);
+    const objectId = new mongoose.Types.ObjectId(updateTo);
     return await this.userSeekerModel.findOneAndUpdate(
       { user: objectId },
       userData,
@@ -234,26 +244,37 @@ export class UserRegistrationService {
     const maxFileSize = 5 * 1024 * 1024; // 5MB
     const maxPdfSize = 20 * 1024 * 1024; // 20MB for PDF
 
-    const avatarFile = files.avatar[0];
-    const resumeFile = files.resume[0];
+    let isAvatarImage;
+    let isAvatarValidSize;
+    let isResumePDF;
+    let isResumeValidSize;
 
     // Validate avatar as an image
-    const avatarExtension = avatarFile.originalname
-      .toLowerCase()
-      .substring(avatarFile.originalname.lastIndexOf('.'));
-    const isAvatarImage = allowedImageExtensions.includes(avatarExtension);
-    const isAvatarValidSize = avatarFile.size <= maxFileSize;
+    if (files.avatar[0]) {
+      console.log('vatar');
 
-    // Validate resume as a PDF
-    const resumeExtension = resumeFile.originalname
-      .toLowerCase()
-      .substring(resumeFile.originalname.lastIndexOf('.'));
-    const isResumePDF = allowedResumeExtensions.includes(resumeExtension);
-    const isResumeValidSize = resumeFile.size <= maxPdfSize;
+      const avatarFile = files.avatar[0];
 
-    return (
-      isAvatarImage && isAvatarValidSize && isResumePDF && isResumeValidSize
-    );
+      const avatarExtension = avatarFile.originalname
+        .toLowerCase()
+        .substring(avatarFile.originalname.lastIndexOf('.'));
+      isAvatarImage = allowedImageExtensions.includes(avatarExtension);
+      isAvatarValidSize = avatarFile.size <= maxFileSize;
+      return isAvatarImage && isAvatarValidSize;
+    }
+    console.log('================', files.resume);
+
+    if (files.resume !== undefined) {
+      console.log('resume');
+      const resumeFile = files.resume[0];
+
+      const resumeExtension = resumeFile.originalname
+        .toLowerCase()
+        .substring(resumeFile.originalname.lastIndexOf('.'));
+      isResumePDF = allowedResumeExtensions.includes(resumeExtension);
+      isResumeValidSize = resumeFile.size <= maxPdfSize;
+      return isResumePDF && isResumeValidSize;
+    }
   }
 
   async suggest(name?: string): Promise<string[]> {

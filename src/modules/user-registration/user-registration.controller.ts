@@ -14,6 +14,7 @@ import {
   UseGuards,
   Query,
   UploadedFiles,
+  Request,
 } from '@nestjs/common';
 import { UserRegistrationService } from './user-registration.service';
 import { User } from 'src/schema/users/user.schema';
@@ -28,11 +29,13 @@ import {
   qualifications,
   streams,
 } from 'src/constants/static/qualification-streams';
+import { TwilioService } from 'src/utilities/sms.service';
 
 @Controller('user-registration')
 export class UserRegistrationController {
   constructor(
     private readonly userRegistrationService: UserRegistrationService,
+    private readonly twilioService: TwilioService,
   ) {}
 
   @Post()
@@ -81,12 +84,16 @@ export class UserRegistrationController {
     ]),
   )
   async createUser(
-    @Param('id') id: string,
+    @Request() req: any,
     @Body(globalValidationPipe) body: UserUpdateDto,
     @UploadedFiles()
-    files: { avatar: Express.Multer.File[]; resume: Express.Multer.File[] },
+    files: { avatar?: Express.Multer.File[]; resume?: Express.Multer.File[] },
   ) {
-    const user = await this.userRegistrationService.update(id, body, files);
+    const user = await this.userRegistrationService.update(
+      req.user.id,
+      body,
+      files,
+    );
     if (!user) throw new HttpException('id not found', HttpStatus.BAD_REQUEST);
     return { message: ' user profile updated successfully', user: user };
   }
@@ -109,5 +116,10 @@ export class UserRegistrationController {
         ? qualifications
         : streams
       : this.userRegistrationService.suggest(name);
+  }
+
+  @Get('/sms/otp')
+  async sendSms(): Promise<any> {
+    await this.twilioService.sendSms('+919657440636', 'hi bhai');
   }
 }

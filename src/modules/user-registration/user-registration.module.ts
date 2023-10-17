@@ -18,6 +18,7 @@ import {
   UserProviderSchema,
 } from 'src/schema/users/provider.user.schema';
 import { HttpModule } from '@nestjs/axios';
+import { TwilioService } from 'src/utilities/sms.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -36,7 +37,7 @@ import { HttpModule } from '@nestjs/axios';
     ]),
 
     MailerModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [ConfigModule , ],
       useFactory: async (configService: ConfigService) => {
         const mailerConfig = {
           transport: {
@@ -59,7 +60,13 @@ import { HttpModule } from '@nestjs/axios';
     HttpModule,
   ],
   controllers: [UserRegistrationController],
-  providers: [UserRegistrationService, MailService, EncryptionService, Helper],
+  providers: [
+    UserRegistrationService,
+    MailService,
+    EncryptionService,
+    Helper,
+    TwilioService,
+  ],
   exports: [EncryptionService, MailService, UserRegistrationService, Helper],
 })
 export class UserRegistrationModule {}
