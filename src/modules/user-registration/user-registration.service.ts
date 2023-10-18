@@ -35,6 +35,8 @@ import {
 } from 'src/schema/users/seeker.user.schema';
 import { HttpService } from '@nestjs/axios';
 import { Helper } from 'src/utilities/helper.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { UploadProfileFileTypes } from 'src/constants/upload.file.enum';
 @Injectable()
 export class UserRegistrationService {
   constructor(
@@ -47,7 +49,8 @@ export class UserRegistrationService {
     private encryptionService: EncryptionService,
     private readonly httpService: HttpService,
     private helperService: Helper,
-  ) {}
+    private cloudinaryService: CloudinaryService
+  ) { }
 
   async create(user: UserDTO): Promise<any> {
     try {
@@ -85,69 +88,115 @@ export class UserRegistrationService {
     }
     return result;
   }
-
-  async update(updateTo: any, userData: any, files?: any): Promise<User> {
-    try {
-      if (files && files.avatar !== undefined) {
-        await this.helperService.validateUploadedFile(
-          files.avatar[0],
-          'avatar',
-        );
-        const updatedAvatar = await this.helperService.renameUploadedFile(
-          files,
-          updateTo.id,
-        );
-        const avatarFilePath = path.join(
-          __dirname,
-          '..',
-          './../../public/profiles',
-          updatedAvatar,
-        );
-        fs.writeFileSync(avatarFilePath, files.avatar[0].buffer);
-        userData.avatar = avatarFilePath;
-      }
-      if (files && files.resume !== undefined) {
-        await this.helperService.validateUploadedFile(
-          files.resume[0],
-          'resume',
-        );
-        const updatedResume = await this.helperService.renameUploadedFile(
-          files,
-          updateTo.id,
-        );
-        const resumeFilePath = path.join(
-          __dirname,
-          '..',
-          './../../public/resumes',
-          updatedResume,
-        );
-        fs.writeFileSync(resumeFilePath, files.resume[0].buffer);
-        userData.resume = resumeFilePath;
-      }
-      await this.userModel
-        .findByIdAndUpdate(updateTo.id, userData, { new: true })
-        .exec();
-      const objectId = new mongoose.Types.ObjectId(updateTo.id);
-      return updateTo.role === 'provider'
-        ? await this.userProviderModel.findOneAndUpdate(
-            { user: objectId },
-            userData,
-            { new: true },
-          )
-        : await this.userSeekerModel.findOneAndUpdate(
-            { user: objectId },
-            userData,
-            { new: true },
+  /*
+    async update0(updateTo: any, userData: any, files?: Express.Multer.File): Promise<User> {
+      try {
+        if (files && files.avatar !== undefined) {
+          await this.helperService.validateUploadedFile(
+            files.avatar[0],
+            'avatar',
           );
-    } catch (error) {
-      if (error.code === 11000) {
-        throw new ConflictException('Email or phone number already exists');
-      } else {
-        throw new InternalServerErrorException(error.response);
+          
+          const updatedAvatar = await this.helperService.renameUploadedFile(
+            files,
+            updateTo.id,
+          );
+  
+          this.cloudinaryService.uploadImage(files.avatar[0])
+  
+          const avatarFilePath = path.join(
+            __dirname,
+            '..',
+            './../../public/profiles',
+            updatedAvatar,
+          );
+          fs.writeFileSync(avatarFilePath, files.avatar[0].buffer);
+          userData.avatar = avatarFilePath;
+        }
+        if (files && files.resume !== undefined) {
+          await this.helperService.validateUploadedFile(
+            files.resume[0],
+            'resume',
+          );
+          const updatedResume = await this.helperService.renameUploadedFile(
+            files,
+            updateTo.id,
+          );
+          const resumeFilePath = path.join(
+            __dirname,
+            '..',
+            './../../public/resumes',
+            updatedResume,
+          );
+          fs.writeFileSync(resumeFilePath, files.resume[0].buffer);
+          userData.resume = resumeFilePath;
+        }
+        await this.userModel
+          .findByIdAndUpdate(updateTo.id, userData, { new: true })
+          .exec();
+        const objectId = new mongoose.Types.ObjectId(updateTo.id);
+        return updateTo.role === 'provider'
+          ? await this.userProviderModel.findOneAndUpdate(
+              { user: objectId },
+              userData,
+              { new: true },
+            )
+          : await this.userSeekerModel.findOneAndUpdate(
+              { user: objectId },
+              userData,
+              { new: true },
+            );
+      } catch (error) {
+        if (error.code === 11000) {
+          throw new ConflictException('Email or phone number already exists');
+        } else {
+          throw new InternalServerErrorException(error.response);
+        }
       }
     }
-  }
+  */
+  async update(updateTo: any, userData: any, files?: UploadProfileFileTypes) {
+    try {
 
+      if (!files) { return false; }
+      Object.keys(files).map(async (fileName: 'avatar' | 'resume') => {
+        await this.helperService.validateUploadedFile(files[fileName][0], fileName);
+        const { ext } = path.parse(files[fileName][0].originalname);
+
+        const file = files[fileName][0] as unknown as File;
+        const updatedFilename = await this.helperService.renameUploadedFile(file, updateTo.id, fileName, ext);
+
+        const { secure_url } = await this.cloudinaryService.uploadImage(file, updatedFilename);
+        userData[fileName] = secure_url
+
+        switch (fileName) {
+          case 'avatar':
+            await this.saveAvatar(updateTo.id, userData, secure_url);
+            break;
+          case 'resume':
+            this.saveResume(updateTo.id, userData, secure_url);
+            break;
+          default:
+            break;
+        }
+
+      })
+
+    }
+    catch (error) {
+      return false;
+    }
+  }
+  
+  private async saveResume(id: any, userData: any, resumeUrl: string) {
+    const user = new mongoose.Types.ObjectId(id);
+    await this.userSeekerModel.findOneAndUpdate({ user }, {...userData , resumeUrl })
+  }
+  
+  private async saveAvatar(id: any, userData: any, avatar: string) {
+    await this.userModel.findByIdAndUpdate(id, { ...userData, avatar }, { new: true })
+  }
+  
   async delete(id: string): Promise<User> {
     return this.userModel.findByIdAndDelete(id).exec();
   }

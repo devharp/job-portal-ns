@@ -19,6 +19,7 @@ import {
 } from 'src/schema/users/provider.user.schema';
 import { HttpModule } from '@nestjs/axios';
 import { TwilioService } from 'src/utilities/sms.service';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -57,7 +58,7 @@ import { TwilioService } from 'src/utilities/sms.service';
       },
       inject: [ConfigService],
     }),
-    HttpModule,
+    HttpModule, CloudinaryModule
   ],
   controllers: [UserRegistrationController],
   providers: [

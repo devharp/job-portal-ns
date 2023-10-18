@@ -3,3 +3,12 @@ export enum UploadTypesEnum {
   IMAGES = 'jpg|jpeg|png',
   DOCS = 'pdf',
 }
+
+interface UploadProfileFileType extends Express.Multer.File {
+  originalname: string
+}
+
+export interface UploadProfileFileTypes {
+  avatar?: UploadProfileFileType[];
+  resume?: UploadProfileFileType[]
+}

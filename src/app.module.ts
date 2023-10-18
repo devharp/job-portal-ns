@@ -23,6 +23,8 @@ import { JobPostModule } from './modules/job-post/job-post.module';
 import { JobApplicationModule } from './modules/job-application/job-application.module';
 import { LocationModule } from './modules/location/location.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { CloudinaryService } from './modules/cloudinary/cloudinary.service';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.local.env' }),

@@ -1,5 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as path from 'path';
+import { UploadProfileFileTypes } from 'src/constants/upload.file.enum';
 
 @Injectable()
 export class Helper {
@@ -12,7 +13,7 @@ export class Helper {
     checkFor: string,
   ): Promise<boolean | HttpException> {
     checkFor === 'resume'
-      ? (this.extension = 'pdf')
+      ? (this.extension = ['.pdf'])
       : (this.extension = ['.jpg', '.jpeg', '.png']);
     if (checkFor === 'avatar') {
       if (
@@ -26,7 +27,7 @@ export class Helper {
       }
     } else {
       if (
-        !file.mimetype.includes(this.extension) ||
+        !this.extension.includes('.' + file.mimetype.split('/')[1]) ||
         file.size > this.maxPdfSize
       ) {
         throw new HttpException(
@@ -40,14 +41,12 @@ export class Helper {
   }
 
   public async renameUploadedFile(
-    file: any,
+    file: File,
     relatedTo: string,
+    fileType: string, extension: string
   ): Promise<string> {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '');
-    const thisFile = file.avatar
-      ? file.avatar[0].originalname
-      : file.resume[0].originalname;
-    const extension = path.parse(thisFile).ext;
-    return `${relatedTo}_resume_${timestamp}${extension}`;
+    
+    return `${relatedTo}_${fileType}_${timestamp}${extension}`;
   }
 }

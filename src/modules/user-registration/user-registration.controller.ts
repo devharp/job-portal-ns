@@ -30,6 +30,7 @@ import {
   streams,
 } from 'src/constants/static/qualification-streams';
 import { TwilioService } from 'src/utilities/sms.service';
+import { UploadProfileFileTypes } from 'src/constants/upload.file.enum';
 
 @Controller('user-registration')
 export class UserRegistrationController {
@@ -76,7 +77,7 @@ export class UserRegistrationController {
   }
   // update user profile details
   @UseGuards(JwtAuthGuard)
-  @Put('/update-profile/:id')
+  @Put('update-profile')
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'avatar', maxCount: 1 },
@@ -87,7 +88,7 @@ export class UserRegistrationController {
     @Request() req: any,
     @Body(globalValidationPipe) body: UserUpdateDto,
     @UploadedFiles()
-    files: { avatar?: Express.Multer.File[]; resume?: Express.Multer.File[] },
+    files: UploadProfileFileTypes,
   ) {
     const { id, role } = req.user;
     const user = await this.userRegistrationService.update(
